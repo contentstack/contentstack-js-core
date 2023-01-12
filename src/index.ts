@@ -1,1 +1,1 @@
-export * from './lib/contentstack-js-core';
+export * from './lib/contentstack-core';
