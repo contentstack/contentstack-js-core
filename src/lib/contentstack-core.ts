@@ -1,50 +1,19 @@
-import clonedeep from 'lodash/cloneDeep'
-import Qs from 'qs'
-import axios, { AxiosInstance } from 'axios'
+import axios, { AxiosRequestHeaders } from 'axios';
+import {cloneDeep} from 'lodash'
+import * as Qs from 'qs';
+import { AxiosInstance, HttpClientParams } from './types';
 
-interface defaultConfig {
-  insecure: boolean;
-  retryOnError: boolean;
-  headers:object;
-  basePath: string;
-  proxy: boolean;
-  httpAgent: boolean;
-  httpsAgent: boolean;
-  adapter: boolean;
-  timeout: number;
-  logHandler: (level:string, data:{name: string, message: string}) => void;
-  retryCondition: (error:any) => boolean;
-}
-
-type Headers = {
-  apiKey: string
-  accessToken: string
-}
-
-interface Config extends defaultConfig {
-  headers: Headers;
-  insecure: boolean;
-  defaultHostName?: string;
-  port: number;
-  version: string;
-  endpoint: string;
-  basePath: string;
-  apiKey?: string;
-  accessToken?: string;
-}
-
-export function contentstackCore(options:Config): AxiosInstance {
-  const defaultConfig: defaultConfig = {
+export function httpClient(options: HttpClientParams): AxiosInstance {
+  const defaultConfig = {
     insecure: false,
     retryOnError: true,
-    headers: {},
+    headers: {} as AxiosRequestHeaders,
     basePath: '',
-    proxy: false,
+    proxy: false as const,
     httpAgent: false,
     httpsAgent: false,
-    adapter: false,
     timeout: 30000,
-    logHandler: (level, data) => {
+    logHandler: (level:  string, data?: any) => {
       if (level === 'error' && data) {
         const title = [data.name, data.message].filter((a) => a).join(' - ')
         console.error(`[error] ${title}`)
@@ -60,23 +29,22 @@ export function contentstackCore(options:Config): AxiosInstance {
     }
   }
 
-  const config: Config = {
+  const config: HttpClientParams = {
     ...defaultConfig,
-    ...clonedeep(options),
+    ...cloneDeep(options),
   }
 
-  if (config.apiKey) {
+  if (config.apiKey && config.headers) {
     config.headers['apiKey'] = config.apiKey
   }
 
-  if (config.accessToken) {
+  if (config.accessToken && config.headers) {
     config.headers['accessToken'] = config.accessToken
   }
 
   const protocol = config.insecure ? 'http' : 'https'
-  const hostname = config.defaultHostName
+  const hostname = config.defaultHostname
   const port = config.port || 443
-  const version = config.version || 'v3'
 
   const baseURL = config.endpoint || `${protocol}://${hostname}:${port}${config.basePath}/{api-version}`
 
@@ -84,18 +52,21 @@ export function contentstackCore(options:Config): AxiosInstance {
     // Axios
     baseURL,
     ...config,
-    paramsSerializer: function (params:{query:string}) {
-      const query:string = params.query;
-      delete params.query
-      let qs = Qs.stringify(params, { arrayFormat: 'brackets' })
-      if (query) {
-        qs = qs + `&query=${encodeURI(JSON.stringify(query))}`
+    paramsSerializer: {
+      serialize:(params:{query?:string}) => {
+        const query = params.query;
+        delete params.query
+        let qs = Qs.stringify(params, { arrayFormat: 'brackets' })
+        if (query) {
+          qs = qs + `&query=${encodeURI(JSON.stringify(query))}`
+        }
+        params.query = query
+        return qs
       }
-      params.query = query
-      return qs
     },
-    versioningStrategy: 'path'
-  });
+  }) as AxiosInstance
+
   instance.httpClientParams = options
+
   return instance;
 }
