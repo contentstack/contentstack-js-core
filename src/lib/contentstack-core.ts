@@ -1,6 +1,6 @@
-import axios, { AxiosRequestHeaders } from 'axios';
 import {cloneDeep} from 'lodash'
-import * as Qs from 'qs';
+import { serialize } from './param-serializer';
+import axios, { AxiosRequestHeaders } from 'axios';
 import { AxiosInstance, HttpClientParams } from './types';
 
 export function httpClient(options: HttpClientParams): AxiosInstance {
@@ -26,7 +26,8 @@ export function httpClient(options: HttpClientParams): AxiosInstance {
         return true
       }
       return false
-    }
+    },
+    versioningStrategy: 'path'
   }
 
   const config: HttpClientParams = {
@@ -53,20 +54,14 @@ export function httpClient(options: HttpClientParams): AxiosInstance {
     baseURL,
     ...config,
     paramsSerializer: {
-      serialize:(params:{query?:string}) => {
-        const query = params.query;
-        delete params.query
-        let qs = Qs.stringify(params, { arrayFormat: 'brackets' })
-        if (query) {
-          qs = qs + `&query=${encodeURI(JSON.stringify(query))}`
-        }
-        params.query = query
-        return qs
-      }
+      serialize
     },
   }) as AxiosInstance
 
   instance.httpClientParams = options
 
+  if (config.onError) {
+    instance.interceptors.response.use((response) => response, config.onError)
+  }
   return instance;
 }

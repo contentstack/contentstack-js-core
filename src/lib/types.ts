@@ -6,15 +6,15 @@ type DefaultOptions = AxiosRequestConfig & {
   responseLogger?: (response: AxiosResponse<any> | Error) => unknown
   requestLogger?: (request: AxiosRequestConfig | Error) => unknown
   retryOnError?: boolean
+  versioningStrategy: string
 }
 
 export type AxiosInstance = OriginalAxiosInstance & {
   httpClientParams: HttpClientParams
-  cloneWithNewParams: (params: Partial<HttpClientParams>) => AxiosInstance
   defaults: DefaultOptions
 }
 
-interface HttpClientParams  {
+export interface HttpClientParams  {
   /** API host */
   host?: string
   /** API Endpoint */
