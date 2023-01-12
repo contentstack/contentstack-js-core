@@ -1,4 +1,4 @@
-import { contentstackCore } from './contentstack-js-core';
+import { contentstackCore } from './contentstack-core';
 
 describe('contentstackCore', () => {
   it('should work', () => {
