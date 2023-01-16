@@ -1,96 +1,100 @@
-
-import axios, { AxiosInstance as OriginalAxiosInstance, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse } from 'axios'
+import { AxiosInstance as OriginalAxiosInstance, AxiosRequestConfig, AxiosRequestHeaders, AxiosResponse } from 'axios';
 
 type DefaultOptions = AxiosRequestConfig & {
-  logHandler: (level: string, data?: Error | string) => void
-  responseLogger?: (response: AxiosResponse<any> | Error) => unknown
-  requestLogger?: (request: AxiosRequestConfig | Error) => unknown
-  retryOnError?: boolean
-  versioningStrategy: string
-}
+  logHandler: (level: string, data?: Error | string) => void;
+  responseLogger?: (response: AxiosResponse<any> | Error) => unknown;
+  requestLogger?: (request: AxiosRequestConfig | Error) => unknown;
+  retryOnError?: boolean;
+  versioningStrategy: string;
+};
 
 export type AxiosInstance = OriginalAxiosInstance & {
-  httpClientParams: HttpClientParams
-  defaults: DefaultOptions
-}
+  httpClientParams: IHttpClientParams;
+  defaults: DefaultOptions;
+};
 
-export interface HttpClientParams  {
+/*
+ * export interface ContentstackPlugin {
+ *   // onRequest()
+ * }
+ */
+export interface IHttpClientParams {
   /** API host */
-  host?: string
+  host?: string;
   /** API Endpoint */
-  endpoint?: string
+  endpoint?: string;
   /** Request type */
-  insecure?: boolean
+  insecure?: boolean;
   /**Port */
-  port?:number
+  port?: number;
   /**API version */
-  version?:string
+  version?: string;
   /** API Key */
-  apiKey?: string
+  apiKey?: string;
   /** Access token */
-  accessToken?: string
+  accessToken?: string;
   /** HTTP agent for node */
-  httpAgent?: AxiosRequestConfig['httpAgent']
+  httpAgent?: AxiosRequestConfig['httpAgent'];
   /** HTTPS agent for node */
-  httpsAgent?: AxiosRequestConfig['httpsAgent']
+  httpsAgent?: AxiosRequestConfig['httpsAgent'];
 
   /** Axios adapter to handle requests */
-  adapter?: AxiosRequestConfig['adapter']
+  adapter?: AxiosRequestConfig['adapter'];
   /** Axios proxy config */
-  proxy?: AxiosRequestConfig['proxy']
+  proxy?: AxiosRequestConfig['proxy'];
 
   /** Gets called on every request triggered by the SDK, takes the axios request config as an argument */
-  requestLogger?: DefaultOptions['requestLogger']
+  requestLogger?: DefaultOptions['requestLogger'];
   /** Gets called on every response, takes axios response object as an argument */
-  responseLogger?: DefaultOptions['responseLogger']
+  responseLogger?: DefaultOptions['responseLogger'];
 
   /** Request interceptor */
-  onRequest?: (value: AxiosRequestConfig) => AxiosRequestConfig | Promise<AxiosRequestConfig>
+  onRequest?: (value: AxiosRequestConfig) => AxiosRequestConfig | Promise<AxiosRequestConfig>;
 
   /** Error handler */
-  onError?: (error: any) => any
+  onError?: (error: any) => any;
 
   /** A log handler function to process given log messages & errors. */
-  logHandler?: DefaultOptions['logHandler']
+  logHandler?: DefaultOptions['logHandler'];
 
   /** Optional additional headers */
-  headers?: AxiosRequestHeaders
+  headers?: AxiosRequestHeaders;
 
   /** Default host name  */
-  defaultHostname?: string
+  defaultHostname?: string;
 
   /**
-    * If we should retry on errors and 429 rate limit exceptions
-    * @default true
-    */
-  retryOnError?: boolean
+   * If we should retry on errors and 429 rate limit exceptions
+   * @default true
+   */
+  retryOnError?: boolean;
 
   /**
-    * Optional number of retries before failure
-    * @default 5
-    */
-   retryLimit?: number
+   * Optional number of retries before failure
+   * @default 5
+   */
+  retryLimit?: number;
 
-   /**
-    * Optional number of milliseconds before the request times out.
-    * @default 30000
-    */
-   timeout?: number
+  /**
+   * Optional number of milliseconds before the request times out.
+   * @default 30000
+   */
+  timeout?: number;
 
-   /** Base path in API url */
-   basePath?: string
+  /** Base path in API url */
+  basePath?: string;
 
-   baseURL?: string
+  baseURL?: string;
 
-   /**
-    * Optional maximum content length in bytes
-    * @default 1073741824 i.e 1GB
-    */
-   maxContentLength?: number
+  /**
+   * Optional maximum content length in bytes
+   * @default 1073741824 i.e 1GB
+   */
+  maxContentLength?: number;
 
-   /**
-    * Optional maximum body length in bytes
-    * @default 1073741824 i.e 1GB
-    */
-   maxBodyLength?: number
+  /**
+   * Optional maximum body length in bytes
+   * @default 1073741824 i.e 1GB
+   */
+  maxBodyLength?: number;
 }
