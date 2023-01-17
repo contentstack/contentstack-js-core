@@ -3,7 +3,20 @@
   "version": "0.0.1",
   "type": "commonjs",
   "main": "./src/index.ts",
+  "scripts": {
+    "prepare": "husky install"
+  },
   "dependencies": {
-    "axios": "^1.1.2"
+    "axios": "^1.1.2",
+    "lodash": "^4.17.21",
+    "qs": "^6.11.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.4.1",
+    "@commitlint/config-conventional": "^17.4.0",
+    "@types/lodash": "^4.14.191",
+    "@types/qs": "^6.9.7",
+    "commitizen": "^4.2.6",
+    "husky": "^8.0.3"
   }
 }
