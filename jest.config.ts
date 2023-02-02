@@ -12,5 +12,5 @@ export default {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   collectCoverage: true,
-  coverageDirectory: '../../coverage/packages/contentstack-js-core',
+  coverageDirectory: './coverage/packages/contentstack-js-core',
 };
