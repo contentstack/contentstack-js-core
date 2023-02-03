@@ -19,7 +19,7 @@ jobs:
                 skip-step: install
                 package-manager: pnpm
                 test-script: pnpm exec nx test contentstack-js-core
-                output: report-markdown
+                output: comment, report-markdown
             - uses: marocchino/sticky-pull-request-comment@v2
               with:
                 message: ${{ steps.coverage-core.outputs.report }}
