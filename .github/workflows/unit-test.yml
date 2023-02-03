@@ -16,7 +16,6 @@ jobs:
               id: coverage-core
               with:
                 package-manager: pnpm
-                coverage-file: ./coverage-report-core.json
                 test-script: pnpm exec nx test contentstack-js-core
                 output: report-markdown
             - uses: marocchino/sticky-pull-request-comment@v2
