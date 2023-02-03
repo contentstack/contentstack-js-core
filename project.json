@@ -39,7 +39,7 @@
       "options": {
         "jestConfig": "packages/contentstack-js-core/jest.config.ts",
         "passWithNoTests": true,
-        "outputFile": "coverage-result-core.json",
+        "outputFile": "report.json",
         "json": true
       }
     }
