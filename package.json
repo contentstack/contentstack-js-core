@@ -5,7 +5,7 @@
   "main": "./src/index.ts",
   "scripts": {
     "prepare": "husky install",
-    "preinstall": "npm i --package-lock-only --omit=dev"
+    "bootstrap": "npm i --package-lock-only --omit=dev"
   },
   "dependencies": {
     "axios": "^1.1.2",
