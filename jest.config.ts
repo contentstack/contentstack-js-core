@@ -1,7 +1,7 @@
 /* eslint-disable */
 export default {
   displayName: 'contentstack-js-core',
-  preset: '../../jest.preset.js',
+  preset: './jest.preset.js',
   globals: {
     'ts-jest': {
       tsconfig: '<rootDir>/tsconfig.spec.json',
