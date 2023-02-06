@@ -9,16 +9,9 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
-            - uses: pnpm/action-setup@v2.2.4
-              with:
-                version: 7.5.0
-                run_install: true
             - uses: ArtiomTr/jest-coverage-report-action@v2
               id: coverage-core
               with:
-                skip-step: install
-                package-manager: pnpm
-                test-script: pnpm exec nx test contentstack-js-core
                 output: comment, report-markdown
             - uses: marocchino/sticky-pull-request-comment@v2
               with:
