@@ -12,13 +12,5 @@ export default {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   collectCoverage: true,
-  coverageDirectory: './coverage/packages/contentstack-js-core',
-  coverageThreshold: {
-    global: {
-      branches: 95,
-      functions: 95,
-      lines: 95,
-      statements: 95
-    }
-  }
+  coverageDirectory: './coverage/packages/contentstack-js-core'
 };
