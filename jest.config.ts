@@ -12,7 +12,7 @@ export default {
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
   collectCoverage: true,
-  coverageDirectory: './coverage/packages/contentstack-js-core',
+  coverageDirectory: './reports/contentstack-js-core/coverage/',
   coverageThreshold: {
     global: {
       branches: 95,
@@ -20,5 +20,28 @@ export default {
       lines: 95,
       statements: 95
     }
-  }
+  },
+  reporters: [
+    'default',
+    [
+      'jest-html-reporters',
+      {
+        publicPath: './reports/contentstack-js-core/html',
+        filename: 'index.html',
+        expand: true,
+      },
+    ],
+    [
+      'jest-junit',
+      {
+        outputDirectory: 'reports/contentstack-js-core/junit',
+        outputName: 'jest-junit.xml',
+        ancestorSeparator: ' › ',
+        uniqueOutputName: 'false',
+        suiteNameTemplate: '{filepath}',
+        classNameTemplate: '{classname}',
+        titleTemplate: '{title}',
+      },
+    ],
+  ],
 };
