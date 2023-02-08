@@ -14,6 +14,7 @@ jobs:
               with:
                 output: comment, report-markdown
             - uses: marocchino/sticky-pull-request-comment@v2
+              if: always()
               with:
                 message: ${{ steps.coverage-core.outputs.report }}
             - name: Test Report
@@ -21,6 +22,6 @@ jobs:
               if: success() || failure()
               with:
                 name: JEST Tests
-                path: reports/junit/jest-*.xml
+                path: reports/contentstack-js-core/junit/jest-*.xml
                 reporter: jest-junit
                 fail-on-error: true
