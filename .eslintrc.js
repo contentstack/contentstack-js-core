@@ -61,10 +61,11 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'max-len': ['warn', { code: 140 }],
     '@typescript-eslint/return-await': 'off',
+    "@cspell/spellchecker": ["warn", { customWordListFile: __dirname + "/.cspell.json",  }, ],
     'no-restricted-imports': [
       'error',
       {
-        patterns: ['@novu/shared/*', '@novu/dal/*', '!import2/good'],
+        patterns: ['!import2/good'],
       },
     ],
     'padding-line-between-statements': [
