@@ -5,7 +5,8 @@
   "main": "./src/index.ts",
   "scripts": {
     "prepare": "husky install",
-    "bootstrap": "npm i --package-lock-only --omit=dev"
+    "bootstrap": "npm i --package-lock-only --omit=dev",
+    "lint": "eslint . -c .eslintrc.js"
   },
   "dependencies": {
     "axios": "^1.1.2",
