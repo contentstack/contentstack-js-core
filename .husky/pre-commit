@@ -1,4 +1,7 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+CMD="${TALISMAN_HOME}/talisman_hook_script $DEBUG_OPTS --githook pre-commit"
+${CMD}
 
+npm run test

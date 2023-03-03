@@ -35,10 +35,12 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/packages/contentstack-js-core"],
+      "outputs": ["reports/contentstack-js-core/coverage"],
       "options": {
         "jestConfig": "packages/contentstack-js-core/jest.config.ts",
-        "passWithNoTests": true
+        "passWithNoTests": true,
+        "outputFile": "report.json",
+        "json": true
       }
     }
   },
