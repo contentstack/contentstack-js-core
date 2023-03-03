@@ -42,7 +42,8 @@ export interface IHttpClientParams {
   adapter?: AxiosRequestConfig['adapter'];
   /** Axios proxy config */
   proxy?: AxiosRequestConfig['proxy'];
-
+  /** Request default params */
+  params?: any;
   /** Gets called on every request triggered by the SDK, takes the axios request config as an argument */
   requestLogger?: DefaultOptions['requestLogger'];
   /** Gets called on every response, takes axios response object as an argument */

@@ -38,11 +38,11 @@ export function httpClient(options: IHttpClientParams): AxiosInstance {
   };
 
   if (config.apiKey && config.headers) {
-    config.headers.apiKey = config.apiKey;
+    config.headers.api_key = config.apiKey;
   }
 
   if (config.accessToken && config.headers) {
-    config.headers.accessToken = config.accessToken;
+    config.headers.access_token = config.accessToken;
   }
 
   const protocol = config.insecure ? 'http' : 'https';

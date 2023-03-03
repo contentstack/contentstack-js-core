@@ -13,7 +13,7 @@ export default {
   moduleFileExtensions: ['ts', 'js', 'html'],
   collectCoverage: true,
   coverageDirectory: './reports/contentstack-js-core/coverage/',
-  "collectCoverageFrom": [
+  collectCoverageFrom: [
     "src/**",
     "!src/index.ts"
   ],
