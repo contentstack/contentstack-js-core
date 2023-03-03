@@ -1,0 +1,17 @@
+{
+    "version": "0.2",
+    "language": "en",
+    "dictionaries": [
+        "!softwareTerms"
+    ],
+    "enabled": true,
+    "words": [],
+    "ignoreWords": [
+        "contentstack"
+    ],
+    "flagWords": [],
+    "ignoreRegExpList": [],
+    "enableFiletypes": [
+        "jsonc"
+    ]
+}

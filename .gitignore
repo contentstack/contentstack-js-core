@@ -27,7 +27,9 @@ node_modules
 # misc
 /.sass-cache
 /connect.lock
-/coverage
+**/coverage
+**/coverage-result-*.json
+**/report.json
 /libpeerconnection.log
 npm-debug.log
 yarn-error.log
@@ -38,3 +40,5 @@ testem.log
 .DS_Store
 Thumbs.db
 .dccache
+
+reports/
