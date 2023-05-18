@@ -13,6 +13,7 @@ describe('serialize', () => {
   });
 
   it('should return non brackets string when param value is not array value', (done) => {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     const param = serialize({ include_count: true });
     expect(param).toEqual('include_count=true');
     done();
