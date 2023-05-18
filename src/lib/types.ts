@@ -99,3 +99,23 @@ export interface IHttpClientParams {
    */
   maxBodyLength?: number;
 }
+
+export interface IErrorResponse {
+  config: AxiosRequestConfig;
+  response: AxiosResponse;
+}
+
+export interface IErrorDetails {
+  status?: number;
+  statusText?: string;
+  request?: {
+    url: string;
+    method: string;
+    data?: any;
+    headers?: any;
+  };
+  errorMessage?: string;
+  errorCode?: number;
+  errors?: any;
+  error?: any;
+}
