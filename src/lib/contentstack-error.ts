@@ -48,5 +48,6 @@ export function error(errorResponse: {
   const errorObj: Error & IErrorDetails = new Error();
   Object.assign(errorObj, errorDetails);
   errorObj.message = JSON.stringify(errorDetails);
-  throw errorObj;
+
+  return errorObj;
 }
