@@ -4,7 +4,7 @@ import { mockErrorResponse, mockErrorResponseNoData, mockErrorResponseNoConfigNo
 
 describe('Contentstack Error', () => {
   it('should throw an error with proper details', () => {
-    expect(() => { throw error(mockErrorResponse)}).toThrow(Error);
+    expect(error(mockErrorResponse)).toBeInstanceOf(Error);
 
     try {
       error(mockErrorResponse);
@@ -37,7 +37,7 @@ describe('Contentstack Error', () => {
   });
 
   it('should throw an error with a default message if response or config is not present', () => {
-    expect(() => { throw error(mockErrorResponseNoConfigNoResponse)}).toThrow(Error);
+    expect(error(mockErrorResponse)).toBeInstanceOf(Error);
 
     try {
       error(mockErrorResponseNoConfigNoResponse);
