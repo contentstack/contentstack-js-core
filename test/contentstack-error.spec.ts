@@ -4,7 +4,7 @@ import { mockErrorResponse, mockErrorResponseNoData, mockErrorResponseNoConfigNo
 
 describe('Contentstack Error', () => {
   it('should throw an error with proper details', () => {
-    expect(() => error(mockErrorResponse)).toThrow(Error);
+    expect(() => { throw error(mockErrorResponse)}).toThrow(Error);
 
     try {
       error(mockErrorResponse);
@@ -37,7 +37,7 @@ describe('Contentstack Error', () => {
   });
 
   it('should throw an error with a default message if response or config is not present', () => {
-    expect(() => error(mockErrorResponseNoConfigNoResponse)).toThrow(Error);
+    expect(() => { throw error(mockErrorResponseNoConfigNoResponse)}).toThrow(Error);
 
     try {
       error(mockErrorResponseNoConfigNoResponse);
@@ -55,7 +55,7 @@ describe('Contentstack Error', () => {
   });
 
   it('should throw an error with proper details when response.data is not available', () => {
-    expect(() => error(mockErrorResponseNoData)).toThrow(Error);
+    expect(() => { throw error(mockErrorResponseNoData)}).toThrow(Error);
 
     try {
       error(mockErrorResponseNoData);
