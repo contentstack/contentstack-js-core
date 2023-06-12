@@ -2,6 +2,7 @@ import { AxiosInstance as OriginalAxiosInstance, AxiosRequestConfig, AxiosReques
 
 type DefaultOptions = AxiosRequestConfig & {
   logHandler: (level: string, data?: Error | string) => void;
+  retryCondition: (error: any) => boolean;
   responseLogger?: (response: AxiosResponse<any> | Error) => unknown;
   requestLogger?: (request: AxiosRequestConfig | Error) => unknown;
   retryOnError?: boolean;
