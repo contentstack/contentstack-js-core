@@ -171,7 +171,7 @@ describe('contentstackCore', () => {
         params: { environment: 'env' },
         onError: jest.fn(),
       });
-      const mockClient: MockAdapter = new MockAdapter(client);
+      const mockClient = new MockAdapter(client);
 
       mockClient.onGet('/').reply(200, {
         data: 'Hello, World!',
