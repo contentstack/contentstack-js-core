@@ -29,6 +29,27 @@ const mockErrorResponse = {
   },
 };
 
+const mockErrorResponseWithoutErrorData = {
+  config: {
+    url: "https://example.com/api/v1/users",
+    method: "POST",
+    data: {
+      name: "John Doe",
+      email: "johndoe@example.com",
+      password: "password123",
+    },
+    headers: {
+      authtoken: "dummy-auth-token",
+      authorization: "Bearer dummy-auth-token",
+    },
+  },
+  response: {
+    status: 400,
+    statusText: "Bad Request",
+    data: {},
+  },
+};
+
 const mockErrorResponseNoConfigNoResponse = {
   status: 400,
   statusText: "Bad Request",
@@ -62,4 +83,4 @@ const mockErrorResponseNoData = {
   },
 };
 
-export { mockErrorResponse, mockErrorResponseNoData, mockErrorResponseNoConfigNoResponse };
+export { mockErrorResponse, mockErrorResponseNoData, mockErrorResponseNoConfigNoResponse, mockErrorResponseWithoutErrorData };

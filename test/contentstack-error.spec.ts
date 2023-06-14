@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { error } from '../src/lib/contentstack-error';
-import { mockErrorResponse, mockErrorResponseNoData, mockErrorResponseNoConfigNoResponse } from './utils/mocks';
+import { mockErrorResponse, mockErrorResponseNoData, mockErrorResponseNoConfigNoResponse, mockErrorResponseWithoutErrorData } from './utils/mocks';
 
 describe('Contentstack Error', () => {
   it('should throw an error with proper details', () => {
@@ -41,6 +41,24 @@ describe('Contentstack Error', () => {
 
     try {
       error(mockErrorResponseNoConfigNoResponse);
+    } catch (e: any) {
+      const errorDetails = JSON.parse(e.message);
+
+      expect(errorDetails.status).toBe(400);
+      expect(errorDetails.statusText).toBe('Bad Request');
+      expect(errorDetails.errorMessage).toBeUndefined();
+      expect(errorDetails.errorCode).toBeUndefined();
+      expect(errorDetails.errors).toBeUndefined();
+      expect(errorDetails.error).toBeUndefined();
+      expect(errorDetails.request).toBeUndefined();
+    }
+  });
+
+  it('should throw an error with a default details if response data is not present', () => {
+    expect(error(mockErrorResponseWithoutErrorData)).toBeInstanceOf(Error);
+
+    try {
+      error(mockErrorResponseWithoutErrorData);
     } catch (e: any) {
       const errorDetails = JSON.parse(e.message);
 

@@ -1,4 +1,6 @@
+import { AxiosInstance } from 'src';
 import { httpClient } from '../src/lib/contentstack-core';
+import MockAdapter from 'axios-mock-adapter';
 describe('contentstackCore', () => {
   it('should return default config when no config is passed', (done) => {
     const client = httpClient({});
@@ -79,7 +81,7 @@ describe('contentstackCore', () => {
       const options = {
         apiKey: 'my-api-key',
         accessToken: 'my-access-token',
-        insecure: false,
+        insecure: true,
         defaultHostname: 'example.com',
         port: 443,
         endpoint: 'https://example.com/api',
@@ -160,6 +162,24 @@ describe('contentstackCore', () => {
       } catch (error: unknown) {
         expect(onError).toBeCalledWith(error);
       }
+    });
+
+    it('should not call the onError function when no error occurs', async () => {
+      const HOST_URL = 'cdn.contentstack.io';
+      const client: AxiosInstance = httpClient({
+        defaultHostname: HOST_URL,
+        params: { environment: 'env' },
+        onError: jest.fn(),
+      });
+      const mockClient: MockAdapter = new MockAdapter(client);
+
+      mockClient.onGet('/').reply(200, {
+        data: 'Hello, World!',
+      });
+
+      await client.get('/');
+
+      expect(client.httpClientParams.onError).not.toBeCalled();
     });
   });
 });
