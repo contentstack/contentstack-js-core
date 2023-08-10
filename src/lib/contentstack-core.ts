@@ -48,8 +48,9 @@ export function httpClient(options: IHttpClientParams): AxiosInstance {
   const protocol = config.insecure ? 'http' : 'https';
   const hostname = config.defaultHostname;
   const port = config.port || 443;
+  const version = config.version || 'v3';
 
-  const baseURL = config.endpoint || `${protocol}://${hostname}:${port}${config.basePath}/{api-version}`;
+  const baseURL = config.endpoint || `${protocol}://${hostname}:${port}${config.basePath}/${version}`;
 
   const instance = axios.create({
     // Axios

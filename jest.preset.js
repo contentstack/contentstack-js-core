@@ -4,6 +4,7 @@ module.exports = {
   moduleFileExtensions: ['ts', 'js', 'mjs', 'html'],
   coverageReporters: ['json', 'html', 'json-summary', 'text', 'lcov'],
   transform: {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     '^.+\\.(ts|js|html)$': 'ts-jest',
   },
   testEnvironment: 'jsdom',
