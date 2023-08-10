@@ -2,6 +2,7 @@ import { AxiosInstance as OriginalAxiosInstance, AxiosRequestConfig, AxiosReques
 
 type DefaultOptions = AxiosRequestConfig & {
   logHandler: (level: string, data?: Error | string) => void;
+  retryCondition: (error: any) => boolean;
   responseLogger?: (response: AxiosResponse<any> | Error) => unknown;
   requestLogger?: (request: AxiosRequestConfig | Error) => unknown;
   retryOnError?: boolean;
@@ -98,4 +99,24 @@ export interface IHttpClientParams {
    * @default 1073741824 i.e 1GB
    */
   maxBodyLength?: number;
+}
+
+export interface IErrorResponse {
+  config: AxiosRequestConfig;
+  response: AxiosResponse;
+}
+
+export interface IErrorDetails {
+  status?: number;
+  statusText?: string;
+  request?: {
+    url: string;
+    method: string;
+    data?: any;
+    headers?: any;
+  };
+  errorMessage?: string;
+  errorCode?: number;
+  errors?: any;
+  error?: any;
 }
