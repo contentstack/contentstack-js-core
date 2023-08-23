@@ -78,6 +78,24 @@ export interface IHttpClientParams {
   retryLimit?: number;
 
   /**
+   * Optional - The number of milliseconds to use for operation retries.
+   * @default 300
+   */
+  retryDelay?: number;
+
+  /**
+   * Optional - A function to determine if the error can be retried. Default retry is on status 429.
+   * @default 5
+   */
+  retryCondition?: (error: any) => boolean;
+
+  /**
+   * Optional - A function to determine if the error can be retried. Default retry is on status 429.
+   * @default 5
+   */
+  retryDelayOptions?: IRetryDelayOptions;
+
+  /**
    * Optional number of milliseconds before the request times out.
    * @default 30000
    */
@@ -99,6 +117,11 @@ export interface IHttpClientParams {
    * @default 1073741824 i.e 1GB
    */
   maxBodyLength?: number;
+}
+
+interface IRetryDelayOptions {
+  base: number;
+  customBackoff: () => number;
 }
 
 export interface IErrorResponse {
