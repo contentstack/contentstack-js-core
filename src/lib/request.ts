@@ -1,13 +1,8 @@
-import { AxiosInstance, IHttpClientParams } from './types';
-import { httpClient } from './contentstack-core';
+import { AxiosInstance } from './types';
 
-export async function getData(clientConfig: IHttpClientParams, url: string, data?: any) {
-  const client: AxiosInstance = httpClient(clientConfig);
+export async function getData(instance: AxiosInstance, url: string, data?: any) {
   try {
-    if (clientConfig.params?.environment) {
-      data.environment = clientConfig.params.environment;
-    }
-    const response = await client.get(url, data);
+    const response = await instance.get(url, { params: data });
     if (response.data) {
       return response.data;
     } else {

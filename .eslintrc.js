@@ -28,7 +28,7 @@ module.exports = {
     '@typescript-eslint/lines-between-class-members': 'off',
     'react/jsx-wrap-multilines': 'off',
     'react/jsx-filename-extension': 'off',
-    'multiline-comment-style': ['error', 'starred-block'],
+    'multiline-comment-style': 'off',
     'promise/catch-or-return': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-unused-expressions': 'off',
@@ -79,13 +79,12 @@ module.exports = {
       'error',
 
       { selector: 'enumMember', format: ['UPPER_CASE'] },
-      { selector: 'enum', format: ['PascalCase'], suffix: ['Enum'] },
+      { selector: 'enum', format: ['PascalCase'] },
       { selector: 'class', format: ['PascalCase'] },
       { selector: 'variableLike', format: ['camelCase', 'UPPER_CASE'], leadingUnderscore: 'allow' },
       {
         selector: 'interface',
-        format: ['PascalCase'],
-        prefix: ['I'],
+        format: ['PascalCase']
       },
       {
         selector: ['function'],

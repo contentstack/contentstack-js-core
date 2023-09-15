@@ -21,7 +21,7 @@ export const retryRequestHandler = (req: AxiosRequestConfig<any>): AxiosRequestC
 
 export const retryResponseHandler = (response: AxiosResponse) => response;
 
-export const retryResponseErrorHandler = (error: any, config: any) => {
+export const retryResponseErrorHandler = async (error: any, config: any) => {
   let retryCount = error.config.retryCount;
   // let retryErrorType = null;
 
@@ -52,7 +52,7 @@ export const retryResponseErrorHandler = (error: any, config: any) => {
       return Promise.reject(error);
     }
 
-    setTimeout(() => {}, config.retryDelay);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     error.config.retryCount = retryCount;
 
