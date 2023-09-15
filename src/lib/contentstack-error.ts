@@ -1,5 +1,5 @@
 /* eslint-disable @cspell/spellchecker */
-import { IErrorDetails } from './types';
+import { ErrorDetails } from './types';
 
 export function error(errorResponse: {
   [key: string]: any;
@@ -16,7 +16,7 @@ export function error(errorResponse: {
   }
   const data: any = response.data;
 
-  const errorDetails: IErrorDetails = {
+  const errorDetails: ErrorDetails = {
     status: response.status,
     statusText: response.statusText,
   };
@@ -45,7 +45,7 @@ export function error(errorResponse: {
     errorDetails.error = data.error || '';
   }
 
-  const errorObj: Error & IErrorDetails = new Error();
+  const errorObj: Error & ErrorDetails = new Error();
   Object.assign(errorObj, errorDetails);
   errorObj.message = JSON.stringify(errorDetails);
 
