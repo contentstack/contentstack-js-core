@@ -2,7 +2,6 @@ import { cloneDeep } from 'lodash';
 import { serialize } from './param-serializer';
 import axios, { AxiosRequestHeaders } from 'axios';
 import { AxiosInstance, HttpClientParams } from './types';
-import { retryRequestHandler, retryResponseErrorHandler, retryResponseHandler } from './retryPolicy/handlers';
 
 export function httpClient(options: HttpClientParams): AxiosInstance {
   const defaultConfig = {
@@ -63,13 +62,6 @@ export function httpClient(options: HttpClientParams): AxiosInstance {
   }) as AxiosInstance;
 
   instance.httpClientParams = options;
-
-  // Retry policy handlers
-  // const errorHandler = (error: any) => {
-  //   retryResponseErrorHandler(error, config);
-  // };
-  // instance.interceptors.request.use(retryRequestHandler);
-  // instance.interceptors.response.use(retryResponseHandler, errorHandler);
 
   if (config.onError) {
     instance.interceptors.response.use((response) => response, config.onError);
