@@ -2,7 +2,8 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "outDir": "../dist/esm",
-    "module": "esnext"
+    "module": "ES2015",
+    "esModuleInterop": true
   },
   "include": ["../src/**/*.ts"], // Adjust this path based on your project structure
   "exclude": ["../dist/esm"]

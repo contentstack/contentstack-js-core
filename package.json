@@ -2,7 +2,8 @@
   "name": "@contentstack/core",
   "version": "0.0.1",
   "type": "commonjs",
-  "main": "./src/index.ts",
+  "main": "./dist/cjs/src/index.js",
+  "types": "./dist/cjs/src/index.d.ts",
   "scripts": {
     "prepare": "husky install",
     "bootstrap": "npm i --package-lock-only --omit=dev",
@@ -23,6 +24,13 @@
     "qs": "^6.11.0",
     "tslib": "^2.4.1"
   },
+  "files": [
+    "dist/*",
+    "package.json",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE.txt"
+  ],
   "devDependencies": {
     "@commitlint/cli": "^17.4.1",
     "@commitlint/config-conventional": "^17.4.0",
