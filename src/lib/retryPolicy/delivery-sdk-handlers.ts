@@ -31,7 +31,7 @@ export const retryResponseErrorHandler = async (error: any, config: any): Promis
     return Promise.reject(error);
   }
 
-  let response = error.response;
+  const response = error.response;
   if (!response) {
     if (error.code === 'ECONNABORTED') {
       error.response = {
@@ -40,7 +40,7 @@ export const retryResponseErrorHandler = async (error: any, config: any): Promis
         statusText: `timeout of ${config.timeout}ms exceeded`,
       };
 
-      response = error.response;
+      return Promise.resolve(error.response);
     } else {
       return Promise.reject(error);
     }
