@@ -21,7 +21,7 @@ export const retryRequestHandler = (req: AxiosRequestConfig<any>): AxiosRequestC
 
 export const retryResponseHandler = (response: AxiosResponse) => response;
 
-export const retryResponseErrorHandler = (error: any, config: any) => {
+export const retryResponseErrorHandler = async (error: any, config: any): Promise<any> => {
   let retryCount = error.config.retryCount;
   // let retryErrorType = null;
 
@@ -31,7 +31,7 @@ export const retryResponseErrorHandler = (error: any, config: any) => {
     return Promise.reject(error);
   }
 
-  let response = error.response;
+  const response = error.response;
   if (!response) {
     if (error.code === 'ECONNABORTED') {
       error.response = {
@@ -40,7 +40,7 @@ export const retryResponseErrorHandler = (error: any, config: any) => {
         statusText: `timeout of ${config.timeout}ms exceeded`,
       };
 
-      response = error.response;
+      return Promise.resolve(error.response);
     } else {
       return Promise.reject(error);
     }
@@ -52,7 +52,7 @@ export const retryResponseErrorHandler = (error: any, config: any) => {
       return Promise.reject(error);
     }
 
-    setTimeout(() => {}, config.retryDelay);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     error.config.retryCount = retryCount;
 
@@ -72,18 +72,8 @@ const retry = (error: any, config: any, retryCount: number, retryDelay: number) 
   if (retryCount > config.retryLimit) {
     return Promise.reject(error);
   }
-  if (config.retryDelayOptions) {
-    if (config.retryDelayOptions.customBackoff) {
-      delayTime = config.retryDelayOptions.customBackoff(retryCount, error);
-      if (delayTime && delayTime <= 0) {
-        return Promise.reject(error);
-      }
-    } else if (config.retryDelayOptions.base) {
-      delayTime = config.retryDelayOptions.base * retryCount;
-    }
-  } else {
-    delayTime = config.retryDelay;
-  }
+
+  delayTime = config.retryDelay;
   error.config.retryCount = retryCount;
 
   return new Promise(function (resolve) {

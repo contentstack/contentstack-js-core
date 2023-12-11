@@ -19,7 +19,9 @@
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": false,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "outDir": "dist"
   },
   "exclude": ["node_modules", "tmp"],
 }
