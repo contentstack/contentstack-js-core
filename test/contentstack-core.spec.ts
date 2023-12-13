@@ -1,4 +1,4 @@
-import { AxiosInstance } from 'src';
+import { AxiosInstance } from '../src';
 import { httpClient } from '../src/lib/contentstack-core';
 import MockAdapter from 'axios-mock-adapter';
 describe('contentstackCore', () => {

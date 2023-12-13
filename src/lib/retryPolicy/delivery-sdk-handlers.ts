@@ -1,8 +1,8 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 
 declare module 'axios' {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  export interface AxiosRequestConfig {
+  export interface InternalAxiosRequestConfig {
     retryCount?: number;
   }
 }
@@ -13,7 +13,7 @@ const defaultConfig = {
   retryDelay: 300,
 };
 
-export const retryRequestHandler = (req: AxiosRequestConfig<any>): AxiosRequestConfig<any> => {
+export const retryRequestHandler = (req: InternalAxiosRequestConfig<any>): InternalAxiosRequestConfig<any> => {
   req.retryCount = req.retryCount || 0;
 
   return req;

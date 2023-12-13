@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosHeaders } from 'axios';
+import { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import {
   retryRequestHandler,
   retryResponseHandler,
@@ -9,7 +9,7 @@ import MockAdapter from 'axios-mock-adapter';
 
 describe('retryRequestHandler', () => {
   it('should add retryCount to the request config', () => {
-    const requestConfig: AxiosRequestConfig = {};
+    const requestConfig: InternalAxiosRequestConfig = { headers: {} as AxiosHeaders };
     const updatedConfig = retryRequestHandler(requestConfig);
 
     expect(updatedConfig.retryCount).toBe(0);
