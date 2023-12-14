@@ -9,7 +9,7 @@ module.exports = {
     'plugin:promise/recommended',
     'plugin:@cspell/recommended',
   ],
-  ignorePatterns: ['.eslintrc.js', '*.json', 'jest.config.js', '**/node_modules'],
+  ignorePatterns: ['.eslintrc.js', '*.json', 'jest.config.js', '**/node_modules', 'dist/*'],
   plugins: ['import', 'promise', 'prettier'],
   parser: '@typescript-eslint/parser',
   settings: {
