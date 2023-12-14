@@ -10,7 +10,7 @@ type DefaultOptions = AxiosRequestConfig & {
 };
 
 export type AxiosInstance = OriginalAxiosInstance & {
-  httpClientParams: IHttpClientParams;
+  httpClientParams: HttpClientParams;
   defaults: DefaultOptions;
 };
 
@@ -19,7 +19,7 @@ export type AxiosInstance = OriginalAxiosInstance & {
  *   // onRequest()
  * }
  */
-export interface IHttpClientParams {
+export interface HttpClientParams {
   /** API host */
   host?: string;
   /** API Endpoint */
@@ -93,7 +93,7 @@ export interface IHttpClientParams {
    * Optional - A function to determine if the error can be retried. Default retry is on status 429.
    * @default 5
    */
-  retryDelayOptions?: IRetryDelayOptions;
+  retryDelayOptions?: RetryDelayOptions;
 
   /**
    * Optional number of milliseconds before the request times out.
@@ -119,17 +119,17 @@ export interface IHttpClientParams {
   maxBodyLength?: number;
 }
 
-interface IRetryDelayOptions {
+interface RetryDelayOptions {
   base: number;
   customBackoff: () => number;
 }
 
-export interface IErrorResponse {
+export interface ErrorResponse {
   config: AxiosRequestConfig;
   response: AxiosResponse;
 }
 
-export interface IErrorDetails {
+export interface ErrorDetails {
   status?: number;
   statusText?: string;
   request?: {
