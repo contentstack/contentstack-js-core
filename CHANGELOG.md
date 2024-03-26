@@ -1,5 +1,9 @@
 ## Change log
 
+### Version: 1.0.2
+#### Date: April-02-2024
+ - Update dependency packages
+
 ### Version: 1.0.1
 #### Date: January-11-2024
  - Fixed Build scripts
