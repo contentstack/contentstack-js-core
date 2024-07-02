@@ -12,7 +12,7 @@ describe('retryRequestHandler', () => {
     const requestConfig: InternalAxiosRequestConfig = { headers: {} as AxiosHeaders };
     const updatedConfig = retryRequestHandler(requestConfig);
 
-    expect(updatedConfig.retryCount).toBe(0);
+    expect(updatedConfig.retryCount).toBe(1);
   });
 });
 
@@ -40,22 +40,45 @@ describe('retryResponseErrorHandler', () => {
   it('should reject the promise if retryOnError is false', async () => {
     const error = { config: { retryOnError: false }, code: 'ECONNABORTED' };
     const config = { retryLimit: 5 };
+    const client = axios.create();
 
-    await expect(retryResponseErrorHandler(error, config)).rejects.toBe(error);
+    try {
+      await retryResponseErrorHandler(error, config, client);
+      fail('Expected retryResponseErrorHandler to throw an error');
+    } catch (err) {
+      expect(err).toEqual(expect.objectContaining({
+        code: 'ECONNABORTED',
+        config: expect.objectContaining({ retryOnError: false }),
+      }));
+    }
   });
   it('should reject the promise if retryOnError is true', async () => {
     const error = { config: { retryOnError: true } };
     const config = { retryLimit: 5 };
-
-    await expect(retryResponseErrorHandler(error, config)).rejects.toBe(error);
+    const client = axios.create();
+  
+    try {
+      await retryResponseErrorHandler(error, config, client);
+      fail('Expected retryResponseErrorHandler to throw an error');
+    } catch (err: any) {
+      expect(err.config).toEqual(expect.objectContaining({ retryOnError: true }));
+      expect(err).toEqual(error);
+    }
   });
   it('should resolve the promise to 408 error if retryOnError is true and error code is ECONNABORTED', async () => {
     const error = { config: { retryOnError: true, retryCount: 1 }, code: 'ECONNABORTED' };
     const config = { retryLimit: 5, timeout: 1000 };
-
-    const errorResponse = { status: 408, statusText: 'timeout of 1000ms exceeded' };
-
-    await expect(retryResponseErrorHandler(error, config)).resolves.toEqual(errorResponse);
+    const client = axios.create();
+    try {
+      await retryResponseErrorHandler(error, config, client);
+      fail('Expected retryResponseErrorHandler to throw an error');
+    } catch (err) {
+      expect(err).toEqual(expect.objectContaining({
+        error_code: 408,
+        error_message: `Timeout of ${config.timeout}ms exceeded`,
+        errors: null
+      }));
+    }  
   });
   it('should reject the promise if response status is 429 and retryCount exceeds retryLimit', async () => {
     const error = {
@@ -63,8 +86,9 @@ describe('retryResponseErrorHandler', () => {
       response: { status: 429, statusText: 'timeout of 1000ms exceeded' },
     };
     const config = { retryLimit: 5, timeout: 1000 };
+    const client = axios.create();
 
-    await expect(retryResponseErrorHandler(error, config)).rejects.toBe(error);
+    await expect(retryResponseErrorHandler(error, config, client)).rejects.toBe(error);
   });
   it('should reject the promise if response status is 401 and retryCount exceeds retryLimit', async () => {
     const error = {
@@ -72,8 +96,9 @@ describe('retryResponseErrorHandler', () => {
       response: { status: 401, statusText: 'timeout of 1000ms exceeded' },
     };
     const config = { retryLimit: 5, timeout: 1000 };
+    const client = axios.create();
 
-    await expect(retryResponseErrorHandler(error, config)).rejects.toBe(error);
+    await expect(retryResponseErrorHandler(error, config, client)).rejects.toBe(error);
   });
   it('should reject the promise if response status is 429 or 401 and retryCount is within limit', async () => {
     const error = {
@@ -87,17 +112,24 @@ describe('retryResponseErrorHandler', () => {
       },
     };
     const config = { retryLimit: 5, timeout: 1000 };
+    const client = axios.create();
 
     const finalResponseObj = {
-      config: { retryOnError: true, retryCount: 5 },
+      config: { retryOnError: true, retryCount: 4 },
       response: { status: 429, statusText: 'timeout of 1000ms exceeded' },
     };
 
     mock.onPost('/retryURL').reply(200, finalResponseObj);
 
-    const finalResponse = await retryResponseErrorHandler(error, config);
+    try {
+      await retryResponseErrorHandler(error, config, client);
+      throw new Error('Expected retryResponseErrorHandler to throw an error');
+    } catch (err: any) {
+      expect(err.response.status).toBe(429);
+      expect(err.response.statusText).toBe(error.response.statusText);
+      expect(err.config.retryCount).toBe(error.config.retryCount);
+    }
 
-    expect(finalResponse.data).toEqual(finalResponseObj);
   });
   it('should call the retry function if retryCondition is passed', async () => {
     const error = {
@@ -113,6 +145,7 @@ describe('retryResponseErrorHandler', () => {
     // eslint-disable-next-line @typescript-eslint/no-shadow
     const retryCondition = (error: any) => true;
     const config = { retryLimit: 5, timeout: 1000, retryCondition: retryCondition };
+    const client = axios.create();
 
     const finalResponseObj = {
       config: { retryOnError: true, retryCount: 5 },
@@ -121,7 +154,7 @@ describe('retryResponseErrorHandler', () => {
 
     mock.onPost('/retryURL').reply(200, finalResponseObj);
 
-    const finalResponse = await retryResponseErrorHandler(error, config);
+    const finalResponse: any = await retryResponseErrorHandler(error, config, client);
 
     expect(finalResponse.data).toEqual(finalResponseObj);
   });
@@ -139,6 +172,7 @@ describe('retryResponseErrorHandler', () => {
     // eslint-disable-next-line @typescript-eslint/no-shadow
     const retryCondition = (error: any) => true;
     const config = { retryLimit: 5, timeout: 1000, retryCondition: retryCondition };
+    const client = axios.create();
 
     const finalResponseObj = {
       config: { retryOnError: true, retryCount: 5 },
@@ -147,6 +181,6 @@ describe('retryResponseErrorHandler', () => {
 
     mock.onPost('/retryURL').reply(200, finalResponseObj);
 
-    await expect(retryResponseErrorHandler(error, config)).rejects.toBe(error);
+    await expect(retryResponseErrorHandler(error, config, client)).rejects.toBe(error);
   });
 });
