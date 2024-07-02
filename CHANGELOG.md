@@ -2,7 +2,7 @@
 
 
 ### Version: 1.0.3
-#### Date: June-05-2024
+#### Date: July-08-2024
  - Fixed retry response error handling
 
 ### Version: 1.0.2
