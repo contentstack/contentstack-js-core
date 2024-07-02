@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-throw-literal */
-import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosInstance } from 'axios';
 
 declare module 'axios' {
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -15,14 +15,14 @@ const defaultConfig = {
 };
 
 export const retryRequestHandler = (req: InternalAxiosRequestConfig<any>): InternalAxiosRequestConfig<any> => {
-  req.retryCount = req.retryCount || 0;
+  req.retryCount = req.retryCount || 1;
 
   return req;
 };
 
 export const retryResponseHandler = (response: AxiosResponse) => response;
 
-export const retryResponseErrorHandler = (error: any, config: any) => {
+export const retryResponseErrorHandler = (error: any, config: any, axiosInstance: AxiosInstance) => {
   try {
     let retryCount = error.config.retryCount;
     config = { ...defaultConfig, ...config };
@@ -46,22 +46,21 @@ export const retryResponseErrorHandler = (error: any, config: any) => {
     } else if (response.status == 429 || response.status == 401) {
       retryCount++;
 
-      if (retryCount > config.retryLimit) {
-        throw error;
+      if (retryCount >= config.retryLimit) {
+        if (error.response && error.response.data) {
+          return Promise.reject(error.response.data);
+        }
+        return Promise.reject(error);
       }
-
-      setTimeout(() => {
         error.config.retryCount = retryCount;
-        axios(error.request);
-      }, 1000);
 
-      return;
+      return axiosInstance(error.config);
     }
 
     if (config.retryCondition && config.retryCondition(error)) {
       retryCount++;
 
-      return retry(error, config, retryCount, config.retryDelay);
+      return retry(error, config, retryCount, config.retryDelay, axiosInstance);
     }
 
     const customError = {
@@ -77,7 +76,7 @@ export const retryResponseErrorHandler = (error: any, config: any) => {
     throw err;
   }
 };
-const retry = (error: any, config: any, retryCount: number, retryDelay: number) => {
+const retry = (error: any, config: any, retryCount: number, retryDelay: number, axiosInstance: AxiosInstance) => {
   let delayTime: number = retryDelay;
   if (retryCount > config.retryLimit) {
     return Promise.reject(error);
@@ -88,7 +87,7 @@ const retry = (error: any, config: any, retryCount: number, retryDelay: number) 
 
   return new Promise(function (resolve) {
     return setTimeout(function () {
-      return resolve(axios(error.request));
+      return resolve(axiosInstance(error.request));
     }, delayTime);
   });
 };
