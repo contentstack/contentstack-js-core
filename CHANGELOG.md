@@ -1,5 +1,10 @@
 ## Change log
 
+
+### Version: 1.0.3
+#### Date: July-08-2024
+ - Fixed retry response error handling
+
 ### Version: 1.0.2
 #### Date: April-02-2024
  - Update dependency packages
