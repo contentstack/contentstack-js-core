@@ -1,4 +1,5 @@
-import axios, { InternalAxiosRequestConfig, AxiosResponse } from 'axios';
+/* eslint-disable @typescript-eslint/no-throw-literal */
+import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosInstance } from 'axios';
 
 declare module 'axios' {
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -14,60 +15,68 @@ const defaultConfig = {
 };
 
 export const retryRequestHandler = (req: InternalAxiosRequestConfig<any>): InternalAxiosRequestConfig<any> => {
-  req.retryCount = req.retryCount || 0;
+  req.retryCount = req.retryCount || 1;
 
   return req;
 };
 
 export const retryResponseHandler = (response: AxiosResponse) => response;
 
-export const retryResponseErrorHandler = async (error: any, config: any): Promise<any> => {
-  let retryCount = error.config.retryCount;
-  // let retryErrorType = null;
+export const retryResponseErrorHandler = (error: any, config: any, axiosInstance: AxiosInstance) => {
+  try {
+    let retryCount = error.config.retryCount;
+    config = { ...defaultConfig, ...config };
 
-  config = { ...defaultConfig, ...config };
-
-  if (!error.config.retryOnError || retryCount > config.retryLimit) {
-    return Promise.reject(error);
-  }
-
-  const response = error.response;
-  if (!response) {
-    if (error.code === 'ECONNABORTED') {
-      error.response = {
-        ...error.response,
-        status: 408,
-        statusText: `timeout of ${config.timeout}ms exceeded`,
-      };
-
-      return Promise.resolve(error.response);
-    } else {
-      return Promise.reject(error);
-    }
-  } else if (response.status == 429 || response.status == 401) {
-    retryCount++;
-    // retryErrorType = `Error with status: ${response.status}`;
-
-    if (retryCount > config.retryLimit) {
-      return Promise.reject(error);
+    if (!error.config.retryOnError || retryCount > config.retryLimit) {
+      throw error;
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const response = error.response;
+    if (!response) {
+      if (error.code === 'ECONNABORTED') {
+        const customError = {
+          error_message: `Timeout of ${config.timeout}ms exceeded`,
+          error_code: 408,
+          errors: null,
+        };
+        throw customError; // Throw customError object
+      } else {
+        throw error;
+      }
+    } else if (response.status == 429 || response.status == 401) {
+      retryCount++;
 
-    error.config.retryCount = retryCount;
+      if (retryCount >= config.retryLimit) {
+        if (error.response && error.response.data) {
+          return Promise.reject(error.response.data);
+        }
+        return Promise.reject(error);
+      }
+        error.config.retryCount = retryCount;
 
-    return axios(error.request);
-  }
+      return axiosInstance(error.config);
+    }
 
-  if (config.retryCondition && config.retryCondition(error)) {
-    // retryErrorType = error.response ? `Error with status: ${response.status}` : `Error Code:${error.code}`;
-    retryCount++;
+    if (config.retryCondition && config.retryCondition(error)) {
+      retryCount++;
 
-    return retry(error, config, retryCount, config.retryDelay);
+      return retry(error, config, retryCount, config.retryDelay, axiosInstance);
+    }
+
+    const customError = {
+      status: response.status,
+      statusText: response.statusText,
+      error_message: response.data.error_message,
+      error_code: response.data.error_code,
+      errors: response.data.errors,
+    };
+
+    throw customError;
+  } catch (err) {
+    throw err;
   }
 };
-
-const retry = (error: any, config: any, retryCount: number, retryDelay: number) => {
+const retry = (error: any, config: any, retryCount: number, retryDelay: number, axiosInstance: AxiosInstance) => {
   let delayTime: number = retryDelay;
   if (retryCount > config.retryLimit) {
     return Promise.reject(error);
@@ -78,7 +87,7 @@ const retry = (error: any, config: any, retryCount: number, retryDelay: number) 
 
   return new Promise(function (resolve) {
     return setTimeout(function () {
-      return resolve(axios(error.request));
+      return resolve(axiosInstance(error.request));
     }, delayTime);
   });
 };
