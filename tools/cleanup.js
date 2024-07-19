@@ -3,10 +3,16 @@ const fs = require('fs');
 const Path = require('path');
 /* eslint-enable */
 
-const deleteFolderRecursive = (path) => {
+const sanitizePath = (inputPath) => {
+  return Path.normalize(inputPath).replace(/^(\.\.(\/|\\|$))+/, '');
+};
+
+const deleteFolderRecursive = (inputPath) => {
+  const path = sanitizePath(inputPath);
+  
   if (fs.existsSync(path)) {
     fs.readdirSync(path).forEach((file) => {
-      const curPath = Path.join(path, file);
+      const curPath = Path.join(path, sanitizePath(file));
       if (fs.lstatSync(curPath).isDirectory()) {
         deleteFolderRecursive(curPath);
       } else {
