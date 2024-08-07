@@ -1,5 +1,8 @@
 ## Change log
 
+### Version: 1.0.4
+#### Date: Aug-06-2024
+ - Live Preview related changes
 
 ### Version: 1.0.3
 #### Date: July-08-2024
