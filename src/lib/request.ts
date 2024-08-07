@@ -15,7 +15,8 @@ export async function getData(instance: AxiosInstance, url: string, data?: any) 
       }
 
       if (livePreviewParams.enable && livePreviewParams.live_preview && livePreviewParams.live_preview !== 'init') {
-        if (livePreviewParams.host.split(0, 8) == 'https://') {
+        // adds protocol so host is replaced and not appended
+        if (livePreviewParams.host.split(0, 8) === 'https://') {
           instance.defaults.baseURL = livePreviewParams.host;
         } else {
           instance.defaults.baseURL = 'https://' + livePreviewParams.host;
