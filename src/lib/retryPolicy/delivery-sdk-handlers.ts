@@ -50,9 +50,10 @@ export const retryResponseErrorHandler = (error: any, config: any, axiosInstance
         if (error.response && error.response.data) {
           return Promise.reject(error.response.data);
         }
+
         return Promise.reject(error);
       }
-        error.config.retryCount = retryCount;
+      error.config.retryCount = retryCount;
 
       return axiosInstance(error.config);
     }
