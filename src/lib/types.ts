@@ -12,6 +12,7 @@ type DefaultOptions = AxiosRequestConfig & {
 export type AxiosInstance = OriginalAxiosInstance & {
   httpClientParams: HttpClientParams;
   defaults: DefaultOptions;
+  stackConfig: any;
 };
 
 /*
