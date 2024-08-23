@@ -1,5 +1,9 @@
 ## Change log
 
+### Version: 1.1.1
+#### Date: Aug-28-2024
+ - Axios version bump
+
 ### Version: 1.1.0
 #### Date: Aug-07-2024
  - Live Preview configuration changes
