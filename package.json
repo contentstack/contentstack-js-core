@@ -1,6 +1,6 @@
 {
   "name": "@contentstack/core",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "type": "commonjs",
   "main": "./dist/cjs/src/index.js",
   "types": "./dist/cjs/src/index.d.ts",
@@ -18,7 +18,7 @@
     "build:types": "node tools/cleanup types && tsc -p config/tsconfig.types.json"
   },
   "dependencies": {
-    "axios": "^1.7.2",
+    "axios": "^1.7.4",
     "axios-mock-adapter": "^1.22.0",
     "lodash": "^4.17.21",
     "qs": "^6.13.0",
