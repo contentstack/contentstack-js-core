@@ -24,4 +24,16 @@ describe('Request tests', () => {
 
     await expect(getData(client, url)).rejects.toThrowError(errorMessage);
   });
+
+  it('should throw error when host is required for live preview', async () => {
+    const client = httpClient({});
+    const url = '/your-api-endpoint';
+    client.stackConfig = {
+      live_preview: {
+        enable: true,
+        preview_token: 'someToken',
+      },
+    };
+    await expect(getData(client, url, {})).rejects.toThrowError('Host is required for live preview');
+  });
 });
