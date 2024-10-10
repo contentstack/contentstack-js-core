@@ -13,13 +13,13 @@ export async function getData(instance: AxiosInstance, url: string, data?: any) 
         instance.defaults.headers.preview_token = livePreviewParams.preview_token;
         instance.defaults.headers.live_preview = livePreviewParams.live_preview;
       }
-
-      if (livePreviewParams.enable && livePreviewParams.live_preview && livePreviewParams.live_preview !== 'init') {
+      if (livePreviewParams.enable) {
         // adds protocol so host is replaced and not appended
-        if (livePreviewParams.host.split(0, 8) === 'https://') {
-          instance.defaults.baseURL = livePreviewParams.host;
-        } else {
-          instance.defaults.baseURL = 'https://' + livePreviewParams.host;
+        if (livePreviewParams.live_preview && livePreviewParams.live_preview !== 'init') {
+          if (!livePreviewParams.host) {
+            throw new Error('Host is required for live preview');
+          }
+          instance.defaults.baseURL = livePreviewParams.host.startsWith('https://') ? '' : 'https://' + livePreviewParams.host;
         }
       }
     }
@@ -30,7 +30,7 @@ export async function getData(instance: AxiosInstance, url: string, data?: any) 
     } else {
       throw Error(JSON.stringify(response));
     }
-  } catch (err) {
-    throw Error(JSON.stringify(err));
+  } catch (err: any) {
+    throw new Error(`${err.message || JSON.stringify(err)}`);
   }
 }
