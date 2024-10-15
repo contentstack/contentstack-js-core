@@ -1,4 +1,7 @@
 ## Change log
+### Version: 1.1.2
+#### Date: Oct-22-2024
+ - Node version bump
 
 ### Version: 1.1.1
 #### Date: Aug-28-2024
