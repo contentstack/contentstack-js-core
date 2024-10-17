@@ -23,7 +23,7 @@ export async function getData(instance: AxiosInstance, url: string, data?: any) 
         }
       }
     }
-    const response = await instance.get(url, { params: data });
+    const response = await instance.get(url, data);
 
     if (response && response.data) {
       return response.data;
