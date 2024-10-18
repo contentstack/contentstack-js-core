@@ -1,4 +1,12 @@
 ## Change log
+### Version: 1.1.3
+#### Date: Oct-22-2024
+ - Fix: getData to receive params and headers both in data
+
+## Change log
+### Version: 1.1.2
+#### Date: Oct-22-2024
+ - Node version bump
 
 ### Version: 1.1.1
 #### Date: Aug-28-2024
