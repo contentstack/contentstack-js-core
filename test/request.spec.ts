@@ -32,6 +32,7 @@ describe('Request tests', () => {
       live_preview: {
         enable: true,
         preview_token: 'someToken',
+        live_preview: '<live_preview_hash>', // this gets added via Delivery SDK; added here in core only for testing.
       },
     };
     await expect(getData(client, url, {})).rejects.toThrowError('Host is required for live preview');
