@@ -1,6 +1,6 @@
 import { cloneDeep } from 'lodash';
 import { serialize } from './param-serializer';
-import axios, { AxiosRequestHeaders } from 'axios';
+import axios, { AxiosRequestHeaders, getAdapter } from 'axios';
 import { AxiosInstance, HttpClientParams } from './types';
 
 export function httpClient(options: HttpClientParams): AxiosInstance {
@@ -55,6 +55,7 @@ export function httpClient(options: HttpClientParams): AxiosInstance {
   const instance = axios.create({
     // Axios
     baseURL,
+    adapter: getAdapter(axios.defaults.adapter),
     ...config,
     paramsSerializer: {
       serialize,
