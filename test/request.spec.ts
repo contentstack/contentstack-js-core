@@ -37,4 +37,68 @@ describe('Request tests', () => {
     };
     await expect(getData(client, url, {})).rejects.toThrowError('Host is required for live preview');
   });
+
+  it('should handle live_preview with enable=true and live_preview=init', async () => {
+    const client = httpClient({});
+    const mock = new MockAdapter(client as any);
+    const url = '/your-api-endpoint';
+    const mockResponse = { data: 'mocked' };
+  
+    client.stackConfig = {
+      live_preview: {
+        enable: true,
+        preview_token: 'someToken',
+        live_preview: 'init',
+      },
+    };
+  
+    mock.onGet(url).reply(200, mockResponse);
+  
+    const result = await getData(client, url, {});
+    expect(result).toEqual(mockResponse);
+  });
+  
+  it('should set baseURL correctly when host is provided without https://', async () => {
+    const client = httpClient({});
+    const mock = new MockAdapter(client as any);
+    const url = '/your-api-endpoint';
+    const mockResponse = { data: 'mocked' };
+  
+    client.stackConfig = {
+      live_preview: {
+        enable: true,
+        preview_token: 'someToken',
+        live_preview: 'someHash',
+        host: 'example.com',
+      },
+    };
+  
+    mock.onGet(url).reply(200, mockResponse);
+  
+    const result = await getData(client, url, {});
+    expect(client.defaults.baseURL).toBe('https://example.com');
+    expect(result).toEqual(mockResponse);
+  });
+  
+  it('should not modify baseURL when host is already prefixed with https://', async () => {
+    const client = httpClient({});
+    const mock = new MockAdapter(client as any);
+    const url = '/your-api-endpoint';
+    const mockResponse = { data: 'mocked' };
+  
+    client.stackConfig = {
+      live_preview: {
+        enable: true,
+        preview_token: 'someToken',
+        live_preview: 'someHash',
+        host: 'https://example.com',
+      },
+    };
+  
+    mock.onGet(url).reply(200, mockResponse);
+  
+    const result = await getData(client, url, {});
+    expect(client.stackConfig.live_preview.host).toBe('https://example.com');
+    expect(result).toEqual(mockResponse);
+  });
 });
