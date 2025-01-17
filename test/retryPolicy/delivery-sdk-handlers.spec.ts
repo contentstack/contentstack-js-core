@@ -183,4 +183,34 @@ describe('retryResponseErrorHandler', () => {
 
     await expect(retryResponseErrorHandler(error, config, client)).rejects.toBe(error);
   });
+
+  it('should retry when response status is 429 and retryCount is less than retryLimit', async () => {
+    const error = {
+      config: { retryOnError: true, retryCount: 1 },
+      response: { status: 429, statusText: 'Rate limit exceeded' },
+    };
+    const config = { retryLimit: 3 };
+    const client = axios.create();
+
+    mock.onAny().reply(200);
+
+    const response: any = await retryResponseErrorHandler(error, config, client);
+    expect(response.status).toBe(200);
+  });
+
+  it('should retry when retryCondition is true', async () => {
+    const error = {
+      config: { retryOnError: true, retryCount: 1 },
+      response: { status: 500, statusText: 'Internal Server Error' },
+    };
+    const retryCondition = jest.fn().mockReturnValue(true);
+    const config = { retryLimit: 3, retryCondition, retryDelay: 100 };
+    const client = axios.create();
+
+    mock.onAny().reply(200);
+
+    const response: any = await retryResponseErrorHandler(error, config, client);
+    expect(response.status).toBe(200);
+    expect(retryCondition).toHaveBeenCalledWith(error);
+  });
 });
