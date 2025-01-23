@@ -1,4 +1,13 @@
 ## Change log
+### Version: 1.2.0
+#### Date: Jan-24-2025
+ - Fix: URL change for Live Preview
+
+### Version: 1.1.4
+#### Date: Jan-17-2025
+ - Fixed defaultAdapters implementation
+ - Updated the test cases
+
 ### Version: 1.1.3
 #### Date: Oct-22-2024
  - Fix: getData to receive params and headers both in data
