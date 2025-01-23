@@ -19,7 +19,7 @@ export async function getData(instance: AxiosInstance, url: string, data?: any) 
           if (!livePreviewParams.host) {
             throw new Error('Host is required for live preview');
           }
-          instance.defaults.baseURL = livePreviewParams.host.startsWith('https://') ? '' : 'https://' + livePreviewParams.host;
+          url = (livePreviewParams.host.startsWith('https://') ? '' : 'https://') + livePreviewParams.host + url;
         }
       }
     }
