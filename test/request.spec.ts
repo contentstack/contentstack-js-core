@@ -59,9 +59,12 @@ describe('Request tests', () => {
   });
   
   it('should set baseURL correctly when host is provided without https://', async () => {
-    const client = httpClient({});
+    const client = httpClient({
+      defaultHostname: 'example.com',
+    });
     const mock = new MockAdapter(client as any);
     const url = '/your-api-endpoint';
+    const livePreviewURL = 'https://rest-preview.com' + url;
     const mockResponse = { data: 'mocked' };
   
     client.stackConfig = {
@@ -69,21 +72,26 @@ describe('Request tests', () => {
         enable: true,
         preview_token: 'someToken',
         live_preview: 'someHash',
-        host: 'example.com',
+        host: 'rest-preview.com',
       },
     };
   
-    mock.onGet(url).reply(200, mockResponse);
+    mock.onGet(livePreviewURL).reply(200, mockResponse);
   
     const result = await getData(client, url, {});
-    expect(client.defaults.baseURL).toBe('https://example.com');
+    expect(client.defaults.baseURL).toBe('https://example.com:443/v3');
+    expect(client.stackConfig.live_preview.host).toBe('rest-preview.com');
+    expect(mock.history.get[0].url).toBe(livePreviewURL);
     expect(result).toEqual(mockResponse);
   });
   
   it('should not modify baseURL when host is already prefixed with https://', async () => {
-    const client = httpClient({});
+    const client = httpClient({
+      defaultHostname: 'example.com',
+    });
     const mock = new MockAdapter(client as any);
     const url = '/your-api-endpoint';
+    const livePreviewURL = 'https://rest-preview.com' + url;
     const mockResponse = { data: 'mocked' };
   
     client.stackConfig = {
@@ -91,14 +99,16 @@ describe('Request tests', () => {
         enable: true,
         preview_token: 'someToken',
         live_preview: 'someHash',
-        host: 'https://example.com',
+        host: 'https://rest-preview.com',
       },
     };
   
-    mock.onGet(url).reply(200, mockResponse);
+    mock.onGet(livePreviewURL).reply(200, mockResponse);
   
     const result = await getData(client, url, {});
-    expect(client.stackConfig.live_preview.host).toBe('https://example.com');
+    expect(client.defaults.baseURL).toBe('https://example.com:443/v3');
+    expect(client.stackConfig.live_preview.host).toBe('https://rest-preview.com');
+    expect(mock.history.get[0].url).toBe(livePreviewURL);
     expect(result).toEqual(mockResponse);
   });
 });
