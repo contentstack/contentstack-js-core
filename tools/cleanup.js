@@ -4,12 +4,15 @@ const Path = require('path');
 /* eslint-enable */
 
 const sanitizePath = (inputPath) => {
-  return Path.normalize(inputPath).replace(/^(\.\.(\/|\\|$))+/, '');
+  return Path.normalize(inputPath)
+    ?.replace(/^([\/\\]){2,}/, './') // Normalize leading slashes/backslashes to ''
+    .replace(/[\/\\]+/g, '/') // Replace multiple slashes/backslashes with a single '/'
+    .replace(/(\.\.(\/|\\|$))+/g, ''); // Remove directory traversal (../ or ..\)
 };
 
 const deleteFolderRecursive = (inputPath) => {
   const path = sanitizePath(inputPath);
-  
+
   if (fs.existsSync(path)) {
     fs.readdirSync(path).forEach((file) => {
       const curPath = Path.join(path, sanitizePath(file));
