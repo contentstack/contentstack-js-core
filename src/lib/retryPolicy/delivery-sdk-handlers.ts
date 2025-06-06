@@ -43,19 +43,26 @@ export const retryResponseErrorHandler = (error: any, config: any, axiosInstance
       } else {
         throw error;
       }
-    } else if (response.status == 429 || response.status == 401) {
-      retryCount++;
-
-      if (retryCount >= config.retryLimit) {
-        if (error.response && error.response.data) {
-          return Promise.reject(error.response.data);
-        }
-
-        return Promise.reject(error);
+    } else {
+      const rateLimitRemaining = response.headers['x-ratelimit-remaining'];
+      if (rateLimitRemaining !== undefined && parseInt(rateLimitRemaining) <= 0) {
+        return Promise.reject(error.response.data);
       }
-      error.config.retryCount = retryCount;
 
-      return axiosInstance(error.config);
+      if (response.status == 429 || response.status == 401) {
+        retryCount++;
+
+        if (retryCount >= config.retryLimit) {
+          if (error.response && error.response.data) {
+            return Promise.reject(error.response.data);
+          }
+
+          return Promise.reject(error);
+        }
+        error.config.retryCount = retryCount;
+
+        return axiosInstance(error.config);
+      }
     }
 
     if (config.retryCondition && config.retryCondition(error)) {
