@@ -1,4 +1,12 @@
 ## Change log
+### Version: 1.2.2
+#### Date: Jun-09-2025
+ - Enhancement: Retry logic to check for rate limit remaining header
+
+### Version: 1.2.1
+#### Date: Apr-29-2025
+ - Fix: Updated Regex for resolve the path traversal issue
+
 ### Version: 1.2.0
 #### Date: Jan-24-2025
  - Fix: URL change for Live Preview
