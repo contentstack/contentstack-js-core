@@ -35,6 +35,8 @@ npm-debug.log
 yarn-error.log
 testem.log
 /typings
+snyk_output.log
+talisman_output.log
 
 # System Files
 .DS_Store
