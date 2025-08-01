@@ -1,4 +1,9 @@
 ## Change log
+### Version: 1.2.3
+#### Date: Aug-04-2025
+ - Fix: Added Pre-commit hook to run talisman and snyk scan
+ - Fix: Updated Dependency to the latest versions
+
 ### Version: 1.2.2
 #### Date: Jun-09-2025
  - Enhancement: Retry logic to check for rate limit remaining header
