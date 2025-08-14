@@ -1,4 +1,8 @@
 ## Change log
+### Version: 1.2.4
+#### Date: Aug-18-2025
+ - Fix: Retry request logic after rate limit replenishes
+
 ### Version: 1.2.3
 #### Date: Aug-04-2025
  - Fix: Added Pre-commit hook to run talisman and snyk scan
