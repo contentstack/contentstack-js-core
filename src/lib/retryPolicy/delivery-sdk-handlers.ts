@@ -127,7 +127,7 @@ const retry = (error: any, config: any, retryCount: number, retryDelay: number, 
  * @param headers - Response headers from the API
  * @returns Delay time in milliseconds
  */
-const calculateRateLimitDelay = (headers: any): number => {
+export const calculateRateLimitDelay = (headers: any): number => {
   // Check for retry-after header (in seconds)
   const retryAfter = headers['retry-after'];
   if (retryAfter) {
@@ -156,17 +156,6 @@ const calculateRateLimitDelay = (headers: any): number => {
     return Math.max(delay + 1000, 1000); // At least 1 second delay
   }
 
-  // Default fallback delay (60 seconds) if no rate limit reset info is available
-  return 60000;
-};
-
-/**
- * Retry request after specified delay
- * @param error - The original error object
- * @param delay - Delay time in milliseconds
- * @param axiosInstance - Axios instance to retry with
- * @returns Promise that resolves after the delay and retry
- */
-const retryWithDelay = async (error: any, delay: number, axiosInstance: AxiosInstance) => {
-  return 
+  // Default fallback delay (1 second) if no rate limit reset info is available
+  return 1000;
 };
