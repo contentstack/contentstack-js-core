@@ -111,4 +111,213 @@ describe('Request tests', () => {
     expect(mock.history.get[0].url).toBe(livePreviewURL);
     expect(result).toEqual(mockResponse);
   });
+
+  it('should throw error when response has no data property', async () => {
+    const client = httpClient({});
+    const mock = new MockAdapter(client as any);
+    const url = '/your-api-endpoint';
+    const responseWithoutData = { status: 200, headers: {} }; // Response without data property
+
+    // Mock response that returns undefined/empty data
+    mock.onGet(url).reply(() => [200, undefined, {}]);
+
+    await expect(getData(client, url)).rejects.toThrowError();
+  });
+
+  it('should throw error when response is null', async () => {
+    const client = httpClient({});
+    const mock = new MockAdapter(client as any);
+    const url = '/your-api-endpoint';
+
+    // Mock response that returns null
+    mock.onGet(url).reply(() => [200, null]);
+
+    await expect(getData(client, url)).rejects.toThrowError();
+  });
+
+  it('should handle live_preview when enable is false', async () => {
+    const client = httpClient({});
+    const mock = new MockAdapter(client as any);
+    const url = '/your-api-endpoint';
+    const mockResponse = { data: 'mocked' };
+
+    client.stackConfig = {
+      live_preview: {
+        enable: false, // Disabled
+        preview_token: 'someToken',
+        live_preview: 'someHash',
+        host: 'rest-preview.com',
+      },
+    };
+
+    mock.onGet(url).reply(200, mockResponse);
+
+    const result = await getData(client, url, {});
+    
+    // Should not modify URL when live preview is disabled
+    expect(mock.history.get[0].url).toBe(url);
+    expect(result).toEqual(mockResponse);
+  });
+
+  it('should handle request when stackConfig is undefined', async () => {
+    const client = httpClient({});
+    const mock = new MockAdapter(client as any);
+    const url = '/your-api-endpoint';
+    const mockResponse = { data: 'mocked' };
+
+    // No stackConfig set
+    client.stackConfig = undefined;
+
+    mock.onGet(url).reply(200, mockResponse);
+
+    const result = await getData(client, url, {});
+    expect(result).toEqual(mockResponse);
+  });
+
+  it('should handle request when stackConfig exists but live_preview is undefined', async () => {
+    const client = httpClient({});
+    const mock = new MockAdapter(client as any);
+    const url = '/your-api-endpoint';
+    const mockResponse = { data: 'mocked' };
+
+    client.stackConfig = {
+      // live_preview not defined
+      apiKey: 'test-key',
+    };
+
+    mock.onGet(url).reply(200, mockResponse);
+
+    const result = await getData(client, url, {});
+    expect(result).toEqual(mockResponse);
+  });
+
+  it('should set live_preview to "init" when enable is true and no live_preview provided', async () => {
+    const client = httpClient({});
+    const mock = new MockAdapter(client as any);
+    const url = '/your-api-endpoint';
+    const mockResponse = { data: 'mocked' };
+
+    client.stackConfig = {
+      live_preview: {
+        enable: true,
+        preview_token: 'someToken',
+        // live_preview not provided
+      },
+    };
+
+    mock.onGet(url).reply(200, mockResponse);
+
+    const data: any = {};
+    const result = await getData(client, url, data);
+    
+    // Should set live_preview to 'init'
+    expect(data.live_preview).toBe('init');
+    expect(result).toEqual(mockResponse);
+  });
+
+  it('should set headers when preview_token is provided', async () => {
+    const client = httpClient({});
+    const mock = new MockAdapter(client as any);
+    const url = '/your-api-endpoint';
+    const mockResponse = { data: 'mocked' };
+
+    client.stackConfig = {
+      live_preview: {
+        enable: true,
+        preview_token: 'test-preview-token',
+        live_preview: 'init',
+      },
+    };
+
+    mock.onGet(url).reply(200, mockResponse);
+
+    const result = await getData(client, url, {});
+    
+    // Should set headers
+    expect(client.defaults.headers.preview_token).toBe('test-preview-token');
+    expect(client.defaults.headers.live_preview).toBe('init');
+    expect(result).toEqual(mockResponse);
+  });
+
+  it('should handle live_preview when enable is true but no preview_token', async () => {
+    const client = httpClient({});
+    const mock = new MockAdapter(client as any);
+    const url = '/your-api-endpoint';
+    const mockResponse = { data: 'mocked' };
+
+    client.stackConfig = {
+      live_preview: {
+        enable: true,
+        live_preview: 'init',
+        // preview_token not provided
+      },
+    };
+
+    mock.onGet(url).reply(200, mockResponse);
+
+    const data: any = {};
+    const result = await getData(client, url, data);
+    
+    // Should still set live_preview in data
+    expect(data.live_preview).toBe('init');
+    expect(result).toEqual(mockResponse);
+  });
+
+  it('should handle custom error messages when request fails', async () => {
+    const client = httpClient({});
+    const mock = new MockAdapter(client as any);
+    const url = '/your-api-endpoint';
+    const customError = new Error('Custom network error');
+
+    mock.onGet(url).reply(() => {
+      throw customError;
+    });
+
+    await expect(getData(client, url)).rejects.toThrowError('Custom network error');
+  });
+
+  it('should handle non-Error objects as errors when they have message property', async () => {
+    const client = httpClient({});
+    const mock = new MockAdapter(client as any);
+    const url = '/your-api-endpoint';
+    const errorObject = { status: 500, message: 'Internal Server Error' };
+
+    mock.onGet(url).reply(() => {
+      throw errorObject;
+    });
+
+    // When error has message property, it uses the message
+    await expect(getData(client, url)).rejects.toThrowError('Internal Server Error');
+  });
+
+  it('should handle non-Error objects as errors when they have no message property', async () => {
+    const client = httpClient({});
+    const mock = new MockAdapter(client as any);
+    const url = '/your-api-endpoint';
+    const errorObject = { status: 500, code: 'SERVER_ERROR' };
+
+    mock.onGet(url).reply(() => {
+      throw errorObject;
+    });
+
+    // When error has no message property, it stringifies the object
+    await expect(getData(client, url)).rejects.toThrowError(JSON.stringify(errorObject));
+  });
+
+  it('should pass data parameter to axios get request', async () => {
+    const client = httpClient({});
+    const mock = new MockAdapter(client as any);
+    const url = '/your-api-endpoint';
+    const mockResponse = { data: 'mocked' };
+    const requestData = { params: { limit: 10, skip: 0 } };
+
+    mock.onGet(url).reply((config) => {
+      // Verify that data was passed correctly
+      expect(config.params).toEqual(requestData.params);
+      return [200, mockResponse];
+    });
+
+    const result = await getData(client, url, requestData);
+    expect(result).toEqual(mockResponse);
+  });
 });
