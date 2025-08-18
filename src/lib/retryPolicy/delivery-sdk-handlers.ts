@@ -45,8 +45,30 @@ export const retryResponseErrorHandler = (error: any, config: any, axiosInstance
       }
     } else {
       const rateLimitRemaining = response.headers['x-ratelimit-remaining'];
+
+      // Handle rate limit exhaustion with retry logic
       if (rateLimitRemaining !== undefined && parseInt(rateLimitRemaining) <= 0) {
-        return Promise.reject(error.response.data);
+        retryCount++;
+
+        if (retryCount >= config.retryLimit) {
+          return Promise.reject(error.response.data);
+        }
+
+        error.config.retryCount = retryCount;
+
+        // Calculate delay for rate limit reset
+        const rateLimitResetDelay = calculateRateLimitDelay(response.headers);
+
+        return new Promise((resolve, reject) => {
+          setTimeout(async () => {
+            try {
+              const retryResponse = await axiosInstance(error.config);
+              resolve(retryResponse);
+            } catch (retryError) {
+              reject(retryError);
+            }
+          }, rateLimitResetDelay);
+        });
       }
 
       if (response.status == 429 || response.status == 401) {
@@ -98,4 +120,53 @@ const retry = (error: any, config: any, retryCount: number, retryDelay: number, 
       return resolve(axiosInstance(error.request));
     }, delayTime);
   });
+};
+
+/**
+ * Calculate delay time for rate limit reset based on response headers
+ * @param headers - Response headers from the API
+ * @returns Delay time in milliseconds
+ */
+const calculateRateLimitDelay = (headers: any): number => {
+  // Check for retry-after header (in seconds)
+  const retryAfter = headers['retry-after'];
+  if (retryAfter) {
+    return parseInt(retryAfter) * 1000; // Convert to milliseconds
+  }
+
+  // Check for x-ratelimit-reset header (Unix timestamp)
+  const rateLimitReset = headers['x-ratelimit-reset'];
+  if (rateLimitReset) {
+    const resetTime = parseInt(rateLimitReset) * 1000; // Convert to milliseconds
+    const currentTime = Date.now();
+    const delay = resetTime - currentTime;
+
+    // Ensure we have a positive delay, add a small buffer
+    return Math.max(delay + 1000, 1000); // At least 1 second delay
+  }
+
+  // Check for x-ratelimit-reset-time header (ISO string)
+  const rateLimitResetTime = headers['x-ratelimit-reset-time'];
+  if (rateLimitResetTime) {
+    const resetTime = new Date(rateLimitResetTime).getTime();
+    const currentTime = Date.now();
+    const delay = resetTime - currentTime;
+
+    // Ensure we have a positive delay, add a small buffer
+    return Math.max(delay + 1000, 1000); // At least 1 second delay
+  }
+
+  // Default fallback delay (60 seconds) if no rate limit reset info is available
+  return 60000;
+};
+
+/**
+ * Retry request after specified delay
+ * @param error - The original error object
+ * @param delay - Delay time in milliseconds
+ * @param axiosInstance - Axios instance to retry with
+ * @returns Promise that resolves after the delay and retry
+ */
+const retryWithDelay = async (error: any, delay: number, axiosInstance: AxiosInstance) => {
+  return 
 };

@@ -251,9 +251,120 @@ describe('retryResponseErrorHandler', () => {
     expect(retryCondition).toHaveBeenCalledWith(error);
   });
 
-  it('should reject with rate limit error when x-ratelimit-remaining is 0', async () => {
+  it('should retry with delay when x-ratelimit-remaining is 0 and retry-after header is present', async () => {
     const error = {
       config: { retryOnError: true, retryCount: 1 },
+      response: {
+        status: 429,
+        headers: {
+          'x-ratelimit-remaining': '0',
+          'retry-after': '1', // 1 second for faster testing
+        },
+        data: {
+          error_message: 'Rate limit exceeded',
+          error_code: 429,
+          errors: null,
+        },
+      },
+    };
+    const config = { retryLimit: 3 };
+    const client = axios.create();
+
+    // Mock successful response after retry
+    mock.onAny().reply(200, { success: true });
+
+    jest.useFakeTimers();
+    
+    const responsePromise = retryResponseErrorHandler(error, config, client);
+    
+    // Fast-forward time by 1 second
+    jest.advanceTimersByTime(1000);
+    
+    const response: any = await responsePromise;
+    
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    
+    jest.useRealTimers();
+  });
+
+  it('should retry with delay when x-ratelimit-remaining is 0 and x-ratelimit-reset header is present', async () => {
+    const error = {
+      config: { retryOnError: true, retryCount: 1 },
+      response: {
+        status: 429,
+        headers: {
+          'x-ratelimit-remaining': '0',
+          'x-ratelimit-reset': Math.floor((Date.now() + 2000) / 1000).toString(), // 2 seconds from now
+        },
+        data: {
+          error_message: 'Rate limit exceeded',
+          error_code: 429,
+          errors: null,
+        },
+      },
+    };
+    const config = { retryLimit: 3 };
+    const client = axios.create();
+
+    // Mock successful response after retry
+    mock.onAny().reply(200, { success: true });
+
+    jest.useFakeTimers();
+    
+    const responsePromise = retryResponseErrorHandler(error, config, client);
+    
+    // Fast-forward time by 3 seconds (2 + 1 buffer)
+    jest.advanceTimersByTime(3000);
+    
+    const response: any = await responsePromise;
+    
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    
+    jest.useRealTimers();
+  });
+
+  it('should retry with default delay when x-ratelimit-remaining is 0 and no reset headers are present', async () => {
+    const error = {
+      config: { retryOnError: true, retryCount: 1 },
+      response: {
+        status: 429,
+        headers: {
+          'x-ratelimit-remaining': '0',
+        },
+        data: {
+          error_message: 'Rate limit exceeded',
+          error_code: 429,
+          errors: null,
+        },
+      },
+    };
+    const config = { retryLimit: 3 };
+    const client = axios.create();
+
+    // Mock successful response after retry
+    mock.onAny().reply(200, { success: true });
+
+    // Use fake timers to avoid waiting for 60 seconds
+    jest.useFakeTimers();
+    
+    const responsePromise = retryResponseErrorHandler(error, config, client);
+    
+    // Fast-forward time by 60 seconds
+    jest.advanceTimersByTime(60000);
+    
+    const response: any = await responsePromise;
+    
+    expect(response.status).toBe(200);
+    expect(response.data.success).toBe(true);
+    
+    jest.useRealTimers();
+  });
+
+  it('should reject with rate limit error when x-ratelimit-remaining is 0 and retry limit is exceeded', async () => {
+    const error = {
+      config: { retryOnError: true, retryCount: 3 }, // Already at retry limit
       response: {
         status: 429,
         headers: {
