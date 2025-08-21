@@ -28,9 +28,9 @@ export async function getData(instance: AxiosInstance, url: string, data?: any) 
     if (response && response.data) {
       return response.data;
     } else {
-      throw Error(JSON.stringify(response));
+      throw response;
     }
   } catch (err: any) {
-    throw new Error(`${err.message || JSON.stringify(err)}`);
+    throw err;
   }
 }
