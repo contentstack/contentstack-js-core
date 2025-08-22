@@ -1,4 +1,9 @@
 ## Change log
+
+### Version: 1.3.0
+#### Date: Aug-25-2025
+ - Fix: Remove custom error object and throw axios error
+
 ### Version: 1.2.4
 #### Date: Aug-18-2025
  - Fix: Retry request logic after rate limit replenishes
