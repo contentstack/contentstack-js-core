@@ -1,7 +1,6 @@
 import { AxiosInstance } from './types';
 
 /**
- * Serializes parameters to match Postman format
  * Handles array parameters properly with & separators
  */
 function serializeParams(params: any): string {
@@ -10,12 +9,10 @@ function serializeParams(params: any): string {
   Object.keys(params).forEach(key => {
     const value = params[key];
     if (Array.isArray(value)) {
-      // Handle array parameters like include[]
       value.forEach(item => {
         urlParams.append(key, item);
       });
     } else {
-      // Handle all other parameter types
       urlParams.set(key, value);
     }
   });
