@@ -648,11 +648,11 @@ describe('retryResponseErrorHandler', () => {
       await retryResponseErrorHandler(error, config, client);
       fail('Expected retryResponseErrorHandler to throw a custom error');
     } catch (customError: any) {
-      expect(customError.status).toBe(400);
-      expect(customError.statusText).toBe('Bad Request');
-      expect(customError.error_message).toBe('Invalid request parameters');
-      expect(customError.error_code).toBe(400);
-      expect(customError.errors).toEqual(['Missing required field: title']);
+      expect(customError.response.status).toBe(400);
+      expect(customError.response.statusText).toBe('Bad Request');
+      expect(customError.response.data.error_message).toBe('Invalid request parameters');
+      expect(customError.response.data.error_code).toBe(400);
+      expect(customError.response.data.errors).toEqual(['Missing required field: title']);
     }
   });
 
@@ -677,11 +677,11 @@ describe('retryResponseErrorHandler', () => {
       await retryResponseErrorHandler(error, config, client);
       fail('Expected retryResponseErrorHandler to throw a custom error');
     } catch (customError: any) {
-      expect(customError.status).toBe(500);
-      expect(customError.statusText).toBe('Internal Server Error');
-      expect(customError.error_message).toBe('Database connection failed');
-      expect(customError.error_code).toBe(500);
-      expect(customError.errors).toBe(null);
+      expect(customError.response.status).toBe(500);
+      expect(customError.response.statusText).toBe('Internal Server Error');
+      expect(customError.response.data.error_message).toBe('Database connection failed');
+      expect(customError.response.data.error_code).toBe(500);
+      expect(customError.response.data.errors).toBe(null);
     }
   });
 
@@ -709,11 +709,11 @@ describe('retryResponseErrorHandler', () => {
       await retryResponseErrorHandler(error, config, client);
       fail('Expected retryResponseErrorHandler to throw a custom error');
     } catch (customError: any) {
-      expect(customError.status).toBe(422);
-      expect(customError.statusText).toBe('Unprocessable Entity');
-      expect(customError.error_message).toBe('Validation failed');
-      expect(customError.error_code).toBe(422);
-      expect(customError.errors).toEqual({
+      expect(customError.response.status).toBe(422);
+      expect(customError.response.statusText).toBe('Unprocessable Entity');
+      expect(customError.response.data.error_message).toBe('Validation failed');
+      expect(customError.response.data.error_code).toBe(422);
+      expect(customError.response.data.errors).toEqual({
         title: ['Title is required'],
         content: ['Content cannot be empty'],
       });
