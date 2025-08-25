@@ -93,15 +93,7 @@ export const retryResponseErrorHandler = (error: any, config: any, axiosInstance
       return retry(error, config, retryCount, config.retryDelay, axiosInstance);
     }
 
-    const customError = {
-      status: response.status,
-      statusText: response.statusText,
-      error_message: response.data.error_message,
-      error_code: response.data.error_code,
-      errors: response.data.errors,
-    };
-
-    throw customError;
+    throw error;
   } catch (err) {
     throw err;
   }
