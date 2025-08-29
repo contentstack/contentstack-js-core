@@ -1,5 +1,9 @@
 ## Change log
 
+### Version: 1.4.0
+#### Date: Sept-01-2025
+ - Fix: Replace URLSearchParams.set() with React Native compatible implementation
+
 ### Version: 1.3.0
 #### Date: Aug-25-2025
  - Fix: Remove custom error object and throw axios error

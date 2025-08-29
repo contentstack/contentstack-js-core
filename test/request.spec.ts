@@ -319,4 +319,29 @@ describe('Request tests', () => {
     const result = await getData(client, url, requestData);
     expect(result).toEqual(mockResponse);
   });
+
+  it('should handle React Native compatibility by avoiding URLSearchParams.set()', async () => {
+    const client = httpClient({});
+    const mock = new MockAdapter(client as any);
+    const url = '/your-api-endpoint';
+    const mockResponse = { data: 'mocked' };
+    const requestData = { 
+      params: { 
+        limit: 10, 
+        skip: 0, 
+        include: ['field1', 'field2'],
+        query: { title: 'test' },
+        nullValue: null,
+        undefinedValue: undefined,
+        emptyString: '',
+        specialChars: 'hello world & more'
+      } 
+    };
+
+    mock.onGet(url).reply(200, mockResponse);
+
+    // The test passes if no "URLSearchParams.set is not implemented" error is thrown
+    const result = await getData(client, url, requestData);
+    expect(result).toEqual(mockResponse);
+  });
 });
