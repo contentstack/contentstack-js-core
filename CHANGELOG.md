@@ -1,6 +1,6 @@
 ## Change log
 
-### Version: 1.4.0
+### Version: 1.3.1
 #### Date: Sept-01-2025
  - Fix: Replace URLSearchParams.set() with React Native compatible implementation
 
