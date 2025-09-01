@@ -2,22 +2,24 @@ import { AxiosInstance } from './types';
 
 /**
  * Handles array parameters properly with & separators
+ * React Native compatible implementation without URLSearchParams.set()
  */
 function serializeParams(params: any): string {
   if (!params) return '';
-  const urlParams = new URLSearchParams();
+  
+  const parts: string[] = [];
   Object.keys(params).forEach(key => {
     const value = params[key];
     if (Array.isArray(value)) {
       value.forEach(item => {
-        urlParams.append(key, item);
+        parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(item)}`);
       });
-    } else {
-      urlParams.set(key, value);
+    } else if (value !== null && value !== undefined) {
+      parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
     }
   });
   
-  return urlParams.toString();
+  return parts.join('&');
 }
 
 /**
