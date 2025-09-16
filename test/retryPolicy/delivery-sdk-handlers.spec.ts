@@ -154,7 +154,14 @@ describe('retryResponseErrorHandler', () => {
   });
   it('should call the retry function if retryCondition is passed', async () => {
     const error = {
-      config: { retryOnError: true, retryCount: 4 },
+      config: { 
+        retryOnError: true, 
+        retryCount: 4,
+        method: 'post',
+        url: '/retryURL',
+        data: { key: 'value' },
+        headers: { 'Content-Type': 'application/json' }
+      },
       response: {
         status: 200,
         statusText: 'Success Response but retry needed',
@@ -231,6 +238,103 @@ describe('retryResponseErrorHandler', () => {
     expect(response.status).toBe(200);
   });
 
+  it('should use configured retryDelay for 429 status retries', async () => {
+    const error = {
+      config: { retryOnError: true, retryCount: 1 },
+      response: {
+        status: 429,
+        statusText: 'Rate limit exceeded',
+        headers: {},
+        data: {
+          error_message: 'Rate limit exceeded',
+          error_code: 429,
+          errors: null,
+        },
+      },
+    };
+    const config = { retryLimit: 3, retryDelay: 500 };
+    const client = axios.create();
+
+    mock.onAny().reply(200, { success: true });
+
+    jest.useFakeTimers();
+    const startTime = Date.now();
+
+    const responsePromise = retryResponseErrorHandler(error, config, client);
+
+    // Fast-forward time by the configured delay
+    jest.advanceTimersByTime(500);
+
+    const response = (await responsePromise) as AxiosResponse;
+    expect(response.status).toBe(200);
+
+    jest.useRealTimers();
+  });
+
+  it('should use configured retryDelay for 401 status retries', async () => {
+    const error = {
+      config: { retryOnError: true, retryCount: 1 },
+      response: {
+        status: 401,
+        statusText: 'Unauthorized',
+        headers: {},
+        data: {
+          error_message: 'Unauthorized',
+          error_code: 401,
+          errors: null,
+        },
+      },
+    };
+    const config = { retryLimit: 3, retryDelay: 250 };
+    const client = axios.create();
+
+    mock.onAny().reply(200, { success: true });
+
+    jest.useFakeTimers();
+
+    const responsePromise = retryResponseErrorHandler(error, config, client);
+
+    // Fast-forward time by the configured delay
+    jest.advanceTimersByTime(250);
+
+    const response = (await responsePromise) as AxiosResponse;
+    expect(response.status).toBe(200);
+
+    jest.useRealTimers();
+  });
+
+  it('should use default retryDelay (300ms) when not configured for 429 retries', async () => {
+    const error = {
+      config: { retryOnError: true, retryCount: 1 },
+      response: {
+        status: 429,
+        statusText: 'Rate limit exceeded',
+        headers: {},
+        data: {
+          error_message: 'Rate limit exceeded',
+          error_code: 429,
+          errors: null,
+        },
+      },
+    };
+    const config = { retryLimit: 3 }; // No retryDelay specified
+    const client = axios.create();
+
+    mock.onAny().reply(200, { success: true });
+
+    jest.useFakeTimers();
+
+    const responsePromise = retryResponseErrorHandler(error, config, client);
+
+    // Fast-forward time by the default delay (300ms)
+    jest.advanceTimersByTime(300);
+
+    const response = (await responsePromise) as AxiosResponse;
+    expect(response.status).toBe(200);
+
+    jest.useRealTimers();
+  });
+
   it('should retry when retryCondition is true', async () => {
     const error = {
       config: { retryOnError: true, retryCount: 1 },
@@ -254,6 +358,40 @@ describe('retryResponseErrorHandler', () => {
     const response = (await retryResponseErrorHandler(error, config, client)) as AxiosResponse;
     expect(response.status).toBe(200);
     expect(retryCondition).toHaveBeenCalledWith(error);
+  });
+
+  it('should use configured retryDelay when retryCondition triggers retry', async () => {
+    const error = {
+      config: { retryOnError: true, retryCount: 1 },
+      response: {
+        status: 500,
+        statusText: 'Internal Server Error',
+        headers: {},
+        data: {
+          error_message: 'Internal Server Error',
+          error_code: 500,
+          errors: null,
+        },
+      },
+    };
+    const retryCondition = jest.fn().mockReturnValue(true);
+    const config = { retryLimit: 3, retryCondition, retryDelay: 750 };
+    const client = axios.create();
+
+    mock.onAny().reply(200, { success: true });
+
+    jest.useFakeTimers();
+
+    const responsePromise = retryResponseErrorHandler(error, config, client);
+
+    // Fast-forward time by the configured delay
+    jest.advanceTimersByTime(750);
+
+    const response = (await responsePromise) as AxiosResponse;
+    expect(response.status).toBe(200);
+    expect(retryCondition).toHaveBeenCalledWith(error);
+
+    jest.useRealTimers();
   });
 
   it('should retry with delay when x-ratelimit-remaining is 0 and retry-after header is present', async () => {
