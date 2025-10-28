@@ -1,4 +1,6 @@
 import { AxiosInstance } from './types';
+import { serialize } from './param-serializer';
+import { APIError } from './api-error';
 
 /**
  * Handles array parameters properly with & separators
@@ -6,20 +8,7 @@ import { AxiosInstance } from './types';
  */
 function serializeParams(params: any): string {
   if (!params) return '';
-  
-  const parts: string[] = [];
-  Object.keys(params).forEach(key => {
-    const value = params[key];
-    if (Array.isArray(value)) {
-      value.forEach(item => {
-        parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(item)}`);
-      });
-    } else if (value !== null && value !== undefined) {
-      parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
-    }
-  });
-  
-  return parts.join('&');
+  return serialize(params);
 }
 
 /**
@@ -46,6 +35,15 @@ async function makeRequest(instance: AxiosInstance, url: string, requestConfig: 
   } else {
     return await instance.get(url, requestConfig);
   }
+}
+
+/**
+ * Handles and formats errors from Axios requests
+ * @param err - The error object from Axios
+ * @returns Formatted error object with meaningful information
+ */
+function handleRequestError(err: any): Error {
+  return APIError.fromAxiosError(err);
 }
 
 export async function getData(instance: AxiosInstance, url: string, data?: any) {
@@ -87,6 +85,6 @@ export async function getData(instance: AxiosInstance, url: string, data?: any) 
       throw response;
     }
   } catch (err: any) {
-    throw err;
+    throw handleRequestError(err);
   }
 }

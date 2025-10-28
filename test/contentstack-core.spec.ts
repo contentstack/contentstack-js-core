@@ -152,6 +152,7 @@ describe('contentstackCore', () => {
     it('should call the onError function when an error occurs', async () => {
       const onError = jest.fn();
       const options = {
+        defaultHostname: 'cdn.contentstack.io',
         onError,
       };
 
