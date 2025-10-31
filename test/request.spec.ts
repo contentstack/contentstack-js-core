@@ -344,4 +344,34 @@ describe('Request tests', () => {
     const result = await getData(client, url, requestData);
     expect(result).toEqual(mockResponse);
   });
+
+  it('should use instance.request when URL length exceeds 2000 characters', async () => {
+    const client = httpClient({ defaultHostname: 'example.com' });
+    const url = '/your-api-endpoint';
+    const mockResponse = { data: 'mocked' };
+    
+    // Create a very long query parameter that will exceed 2000 characters when combined with baseURL
+    // baseURL is typically like 'https://example.com:443/v3' (~30 chars), url is '/your-api-endpoint' (~20 chars)
+    // So we need params that serialize to >1950 chars to exceed 2000 total
+    const longParam = 'x'.repeat(2000);
+    const requestData = { params: { longParam, param2: 'y'.repeat(500) } };
+    
+    // Mock instance.request since that's what gets called for long URLs
+    const requestSpy = jest.spyOn(client, 'request').mockResolvedValue({ data: mockResponse } as any);
+
+    const result = await getData(client, url, requestData);
+    
+    expect(result).toEqual(mockResponse);
+    // Verify that request was called (not get) with the full URL
+    expect(requestSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: 'get',
+        url: expect.stringMatching(/longParam/),
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+      })
+    );
+    
+    requestSpy.mockRestore();
+  });
 });
