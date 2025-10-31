@@ -1,5 +1,9 @@
 ## Change log
 
+### Version: 1.3.3
+#### Date: Oct-27-2025
+ - Fix: Used common serialize method for query params
+
 ### Version: 1.3.1
 #### Date: Sept-01-2025
  - Fix: Replace URLSearchParams.set() with React Native compatible implementation
