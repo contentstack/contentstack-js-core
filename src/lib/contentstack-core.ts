@@ -14,13 +14,16 @@ export function httpClient(options: HttpClientParams): AxiosInstance {
     httpsAgent: false,
     timeout: 30000,
     logHandler: (level: string, data?: any) => {
-      if (level === 'error' && data) {
-        const title = [data.name, data.message].filter((a) => a).join(' - ');
-        console.error(`[error] ${title}`);
-
+      if (level === 'error') {
+        if (data) {
+          const title = [data.name, data.message].filter((a) => a).join(' - ');
+          console.error(`[error] ${title}`);
+        }
         return;
       }
-      console.log(`[${level}] ${data}`);
+      if (data !== undefined) {
+        console.log(`[${level}] ${data}`);
+      }
     },
     retryCondition: (error: any) => {
       if (error.response && error.response.status === 429) {
