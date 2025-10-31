@@ -150,6 +150,9 @@ describe('contentstackCore', () => {
 
   describe('config.onError', () => {
     it('should call the onError function when an error occurs', async () => {
+      // Suppress expected console.error from network error
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      
       const onError = jest.fn();
       const options = {
         defaultHostname: 'cdn.contentstack.io',
@@ -163,6 +166,8 @@ describe('contentstackCore', () => {
       } catch (error: unknown) {
         expect(onError).toBeCalledWith(error);
       }
+      
+      consoleErrorSpy.mockRestore();
     });
 
     it('should not call the onError function when no error occurs', async () => {
