@@ -83,7 +83,17 @@ export const retryResponseErrorHandler = (error: any, config: any, axiosInstance
         }
         error.config.retryCount = retryCount;
 
-        return axiosInstance(error.config);
+        // Apply configured delay for retries
+        return new Promise((resolve, reject) => {
+          setTimeout(async () => {
+            try {
+              const retryResponse = await axiosInstance(error.config);
+              resolve(retryResponse);
+            } catch (retryError) {
+              reject(retryError);
+            }
+          }, config.retryDelay || 300); // Use configured delay with fallback
+        });
       }
     }
 
@@ -99,17 +109,22 @@ export const retryResponseErrorHandler = (error: any, config: any, axiosInstance
   }
 };
 const retry = (error: any, config: any, retryCount: number, retryDelay: number, axiosInstance: AxiosInstance) => {
-  let delayTime: number = retryDelay;
   if (retryCount > config.retryLimit) {
     return Promise.reject(error);
   }
 
-  delayTime = config.retryDelay;
+  // Use the passed retryDelay parameter first, then config.retryDelay, then default
+  const delayTime = retryDelay || config.retryDelay || 300;
   error.config.retryCount = retryCount;
 
-  return new Promise(function (resolve) {
-    return setTimeout(function () {
-      return resolve(axiosInstance(error.request));
+  return new Promise(function (resolve, reject) {
+    return setTimeout(async function () {
+      try {
+        const retryResponse = await axiosInstance(error.config);
+        resolve(retryResponse);
+      } catch (retryError) {
+        reject(retryError);
+      }
     }, delayTime);
   });
 };
