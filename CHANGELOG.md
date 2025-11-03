@@ -1,6 +1,6 @@
 ## Change log
 
-### Version: 1.3.3
+### Version: 1.3.2
 #### Date: Oct-27-2025
  - Fix: Used common serialize method for query params
 
