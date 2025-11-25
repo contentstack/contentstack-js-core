@@ -1,7 +1,7 @@
 ## Change log
 
 ### Version: 1.3.4
-#### Date: Dec-19-2024
+#### Date: Nov-26-2025
  - Fix: Prevent baseURL concatenation when absolute URLs (http:// or https://) are passed to getData() or created by live preview, preventing malformed URLs
 
 ### Version: 1.3.3
