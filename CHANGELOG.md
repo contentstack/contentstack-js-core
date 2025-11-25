@@ -1,5 +1,9 @@
 ## Change log
 
+### Version: 1.3.4
+#### Date: Dec-19-2024
+ - Fix: Prevent baseURL concatenation when absolute URLs (http:// or https://) are passed to getData() or created by live preview, preventing malformed URLs
+
 ### Version: 1.3.3
 #### Date: Nov-10-2025
  - Fix: Added 'exports' field to package.json to fix ESM import error where '@contentstack/core' does not provide an export named 'getData' in modern ESM environments (e.g., Nuxt.js, Vite)
