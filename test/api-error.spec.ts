@@ -74,7 +74,7 @@ describe('APIError', () => {
       const error = APIError.fromAxiosError(axiosError);
 
       expect(error).toBeInstanceOf(APIError);
-      expect(error.error_message).toBe('Unknown error occurred');
+      expect(error.error_message).toBe('An unknown error occurred. Please try again or contact support if the issue persists.');
       expect(error.error_code).toBe('UNKNOWN_ERROR');
       expect(error.status).toBe(0);
     });
@@ -169,7 +169,7 @@ describe('APIError', () => {
       const error = APIError.fromResponseData(responseData, 500);
 
       expect(error).toBeInstanceOf(APIError);
-      expect(error.error_message).toBe('Request failed');
+      expect(error.error_message).toBe('Request failed. Please review your request and try again.');
       expect(error.error_code).toBe(500);
       expect(error.status).toBe(500);
     });
