@@ -43,7 +43,7 @@ describe('Request tests', () => {
     const mock = new MockAdapter(client as any);
     const url = '/your-api-endpoint';
     const mockResponse = { data: 'mocked' };
-  
+
     client.stackConfig = {
       live_preview: {
         enable: true,
@@ -51,13 +51,13 @@ describe('Request tests', () => {
         live_preview: 'init',
       },
     };
-  
+
     mock.onGet(url).reply(200, mockResponse);
-  
+
     const result = await getData(client, url, {});
     expect(result).toEqual(mockResponse);
   });
-  
+
   it('should set baseURL correctly when host is provided without https://', async () => {
     const client = httpClient({
       defaultHostname: 'example.com',
@@ -66,7 +66,7 @@ describe('Request tests', () => {
     const url = '/your-api-endpoint';
     const livePreviewURL = 'https://rest-preview.com' + url;
     const mockResponse = { data: 'mocked' };
-  
+
     client.stackConfig = {
       live_preview: {
         enable: true,
@@ -75,16 +75,16 @@ describe('Request tests', () => {
         host: 'rest-preview.com',
       },
     };
-  
+
     mock.onGet(livePreviewURL).reply(200, mockResponse);
-  
+
     const result = await getData(client, url, {});
     expect(client.defaults.baseURL).toBe('https://example.com:443/v3');
     expect(client.stackConfig.live_preview.host).toBe('rest-preview.com');
     expect(mock.history.get[0].url).toBe(livePreviewURL);
     expect(result).toEqual(mockResponse);
   });
-  
+
   it('should not modify baseURL when host is already prefixed with https://', async () => {
     const client = httpClient({
       defaultHostname: 'example.com',
@@ -93,7 +93,7 @@ describe('Request tests', () => {
     const url = '/your-api-endpoint';
     const livePreviewURL = 'https://rest-preview.com' + url;
     const mockResponse = { data: 'mocked' };
-  
+
     client.stackConfig = {
       live_preview: {
         enable: true,
@@ -102,9 +102,9 @@ describe('Request tests', () => {
         host: 'https://rest-preview.com',
       },
     };
-  
+
     mock.onGet(livePreviewURL).reply(200, mockResponse);
-  
+
     const result = await getData(client, url, {});
     expect(client.defaults.baseURL).toBe('https://example.com:443/v3');
     expect(client.stackConfig.live_preview.host).toBe('https://rest-preview.com');
@@ -120,7 +120,7 @@ describe('Request tests', () => {
     // Mock response that returns undefined/empty data
     mock.onGet(url).reply(() => [200, undefined, {}]);
 
-  await expect(getData(client, url)).rejects.toBeDefined();
+    await expect(getData(client, url)).rejects.toBeDefined();
   });
 
   it('should throw error when response is null', async () => {
@@ -131,7 +131,7 @@ describe('Request tests', () => {
     // Mock response that returns null
     mock.onGet(url).reply(() => [200, null]);
 
-  await expect(getData(client, url)).rejects.toBeDefined();
+    await expect(getData(client, url)).rejects.toBeDefined();
   });
 
   it('should handle live_preview when enable is false', async () => {
@@ -152,7 +152,7 @@ describe('Request tests', () => {
     mock.onGet(url).reply(200, mockResponse);
 
     const result = await getData(client, url, {});
-    
+
     // Should not modify URL when live preview is disabled
     expect(mock.history.get[0].url).toBe(url);
     expect(result).toEqual(mockResponse);
@@ -208,7 +208,7 @@ describe('Request tests', () => {
 
     const data: any = {};
     const result = await getData(client, url, data);
-    
+
     // Should set live_preview to 'init'
     expect(data.live_preview).toBe('init');
     expect(result).toEqual(mockResponse);
@@ -231,7 +231,7 @@ describe('Request tests', () => {
     mock.onGet(url).reply(200, mockResponse);
 
     const result = await getData(client, url, {});
-    
+
     // Should set headers
     expect(client.defaults.headers.preview_token).toBe('test-preview-token');
     expect(client.defaults.headers.live_preview).toBe('init');
@@ -256,7 +256,7 @@ describe('Request tests', () => {
 
     const data: any = {};
     const result = await getData(client, url, data);
-    
+
     // Should still set live_preview in data
     expect(data.live_preview).toBe('init');
     expect(result).toEqual(mockResponse);
@@ -286,7 +286,7 @@ describe('Request tests', () => {
     });
 
     // When error has message property, it uses the message
-  await expect(getData(client, url)).rejects.toBeDefined();
+    await expect(getData(client, url)).rejects.toBeDefined();
   });
 
   it('should handle non-Error objects as errors when they have no message property', async () => {
@@ -300,7 +300,7 @@ describe('Request tests', () => {
     });
 
     // When error has no message property, it stringifies the object
-  await expect(getData(client, url)).rejects.toBeDefined();
+    await expect(getData(client, url)).rejects.toBeDefined();
   });
 
   it('should pass data parameter to axios get request', async () => {
@@ -313,6 +313,7 @@ describe('Request tests', () => {
     mock.onGet(url).reply((config) => {
       // Verify that data was passed correctly
       expect(config.params).toEqual(requestData.params);
+
       return [200, mockResponse];
     });
 
@@ -325,17 +326,17 @@ describe('Request tests', () => {
     const mock = new MockAdapter(client as any);
     const url = '/your-api-endpoint';
     const mockResponse = { data: 'mocked' };
-    const requestData = { 
-      params: { 
-        limit: 10, 
-        skip: 0, 
+    const requestData = {
+      params: {
+        limit: 10,
+        skip: 0,
         include: ['field1', 'field2'],
         query: { title: 'test' },
         nullValue: null,
         undefinedValue: undefined,
         emptyString: '',
-        specialChars: 'hello world & more'
-      } 
+        specialChars: 'hello world & more',
+      },
     };
 
     mock.onGet(url).reply(200, mockResponse);
@@ -349,18 +350,18 @@ describe('Request tests', () => {
     const client = httpClient({ defaultHostname: 'example.com' });
     const url = '/your-api-endpoint';
     const mockResponse = { data: 'mocked' };
-    
+
     // Create a very long query parameter that will exceed 2000 characters when combined with baseURL
     // baseURL is typically like 'https://example.com:443/v3' (~30 chars), url is '/your-api-endpoint' (~20 chars)
     // So we need params that serialize to >1950 chars to exceed 2000 total
     const longParam = 'x'.repeat(2000);
     const requestData = { params: { longParam, param2: 'y'.repeat(500) } };
-    
+
     // Mock instance.request since that's what gets called for long URLs
     const requestSpy = jest.spyOn(client, 'request').mockResolvedValue({ data: mockResponse } as any);
 
     const result = await getData(client, url, requestData);
-    
+
     expect(result).toEqual(mockResponse);
     // Verify that request was called (not get) with the full URL
     expect(requestSpy).toHaveBeenCalledWith(
@@ -371,7 +372,161 @@ describe('Request tests', () => {
         maxBodyLength: Infinity,
       })
     );
-    
+
     requestSpy.mockRestore();
+  });
+
+  describe('Absolute URL handling', () => {
+    it('should not concatenate baseURL when absolute https:// URL is passed', async () => {
+      const client = httpClient({
+        defaultHostname: 'example.com',
+      });
+      const mock = new MockAdapter(client as any);
+      const absoluteUrl = 'https://external-api.com/api/endpoint';
+      const mockResponse = { data: 'mocked' };
+
+      mock.onGet(absoluteUrl).reply(200, mockResponse);
+
+      const result = await getData(client, absoluteUrl, {});
+
+      expect(result).toEqual(mockResponse);
+      // Verify that the absolute URL was used as-is, not concatenated with baseURL
+      expect(mock.history.get[0].url).toBe(absoluteUrl);
+    });
+
+    it('should not concatenate baseURL when absolute http:// URL is passed', async () => {
+      const client = httpClient({
+        defaultHostname: 'example.com',
+      });
+      const mock = new MockAdapter(client as any);
+      const absoluteUrl = 'http://external-api.com/api/endpoint';
+      const mockResponse = { data: 'mocked' };
+
+      mock.onGet(absoluteUrl).reply(200, mockResponse);
+
+      const result = await getData(client, absoluteUrl, {});
+
+      expect(result).toEqual(mockResponse);
+      // Verify that the absolute URL was used as-is
+      expect(mock.history.get[0].url).toBe(absoluteUrl);
+    });
+
+    it('should still concatenate baseURL when relative URL is passed', async () => {
+      const client = httpClient({
+        defaultHostname: 'example.com',
+      });
+      const mock = new MockAdapter(client as any);
+      const relativeUrl = '/api/endpoint';
+      const mockResponse = { data: 'mocked' };
+
+      mock.onGet(relativeUrl).reply(200, mockResponse);
+
+      const result = await getData(client, relativeUrl, {});
+
+      expect(result).toEqual(mockResponse);
+      // Verify that relative URL was used (Axios will combine with baseURL)
+      expect(mock.history.get[0].url).toBe(relativeUrl);
+      expect(client.defaults.baseURL).toBe('https://example.com:443/v3');
+    });
+
+    it('should handle absolute URL with query parameters correctly', async () => {
+      const client = httpClient({
+        defaultHostname: 'example.com',
+      });
+      const mock = new MockAdapter(client as any);
+      const absoluteUrl = 'https://external-api.com/api/endpoint';
+      const mockResponse = { data: 'mocked' };
+      const requestData = { params: { limit: 10, skip: 0 } };
+
+      mock.onGet(absoluteUrl).reply((config) => {
+        expect(config.params).toEqual(requestData.params);
+
+        return [200, mockResponse];
+      });
+
+      const result = await getData(client, absoluteUrl, requestData);
+
+      expect(result).toEqual(mockResponse);
+      expect(mock.history.get[0].url).toBe(absoluteUrl);
+    });
+
+    it('should handle live preview with absolute URL correctly (no double baseURL)', async () => {
+      const client = httpClient({
+        defaultHostname: 'example.com',
+      });
+      const mock = new MockAdapter(client as any);
+      const relativeUrl = '/your-api-endpoint';
+      const livePreviewAbsoluteUrl = 'https://rest-preview.com/your-api-endpoint';
+      const mockResponse = { data: 'mocked' };
+
+      client.stackConfig = {
+        live_preview: {
+          enable: true,
+          preview_token: 'someToken',
+          live_preview: 'someHash',
+          host: 'rest-preview.com',
+        },
+      };
+
+      mock.onGet(livePreviewAbsoluteUrl).reply(200, mockResponse);
+
+      const result = await getData(client, relativeUrl, {});
+
+      expect(result).toEqual(mockResponse);
+      // Verify that the live preview absolute URL was used, not concatenated with baseURL
+      expect(mock.history.get[0].url).toBe(livePreviewAbsoluteUrl);
+      expect(client.defaults.baseURL).toBe('https://example.com:443/v3');
+    });
+
+    it('should handle custom endpoint with absolute URL correctly', async () => {
+      const client = httpClient({
+        endpoint: 'https://custom-api.com/v2',
+      });
+      const mock = new MockAdapter(client as any);
+      const absoluteUrl = 'https://external-api.com/api/endpoint';
+      const mockResponse = { data: 'mocked' };
+
+      mock.onGet(absoluteUrl).reply(200, mockResponse);
+
+      const result = await getData(client, absoluteUrl, {});
+
+      expect(result).toEqual(mockResponse);
+      // Verify that absolute URL was used as-is, ignoring the custom endpoint baseURL
+      expect(mock.history.get[0].url).toBe(absoluteUrl);
+    });
+
+    it('should handle absolute URL when actualFullUrl exceeds 2000 characters', async () => {
+      const client = httpClient({
+        defaultHostname: 'example.com',
+      });
+      const absoluteUrl = 'https://external-api.com/api/endpoint';
+      const mockResponse = { data: 'mocked' };
+
+      // Create a very long query parameter that will exceed 2000 characters
+      const longParam = 'x'.repeat(2000);
+      const requestData = { params: { longParam, param2: 'y'.repeat(500) } };
+
+      // Mock instance.request since that's what gets called for long URLs
+      const requestSpy = jest.spyOn(client, 'request').mockResolvedValue({ data: mockResponse } as any);
+
+      const result = await getData(client, absoluteUrl, requestData);
+
+      expect(result).toEqual(mockResponse);
+      // Verify that request was called with the absolute URL (not concatenated with baseURL)
+      expect(requestSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: 'get',
+          url: expect.stringContaining('https://external-api.com/api/endpoint'),
+          maxContentLength: Infinity,
+          maxBodyLength: Infinity,
+        })
+      );
+      // Verify the URL doesn't contain the baseURL
+      const callUrl = requestSpy.mock.calls[0][0].url;
+      expect(callUrl).not.toContain('example.com:443/v3');
+      expect(callUrl).toContain('external-api.com');
+
+      requestSpy.mockRestore();
+    });
   });
 });
