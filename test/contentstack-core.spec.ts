@@ -17,7 +17,7 @@ describe('contentstackCore', () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       httpClient({}).defaults.logHandler('error', error);
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('[error] Error - Something went wrong');
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error: Error - Something went wrong. Review the error details and try again.');
 
       consoleErrorSpy.mockRestore();
     });
@@ -36,7 +36,7 @@ describe('contentstackCore', () => {
 
       httpClient({}).defaults.logHandler('info', 'Some message');
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('[info] Some message');
+      expect(consoleLogSpy).toHaveBeenCalledWith('info: Some message. Review the details and try again.');
 
       consoleLogSpy.mockRestore();
     });
