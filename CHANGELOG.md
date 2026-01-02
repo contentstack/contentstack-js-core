@@ -1,5 +1,17 @@
 ## Change log
 
+### Version: 1.3.6
+#### Date: Jan-05-2026
+ - Fix: Resolve qa dependency snyk issue
+
+### Version: 1.3.5
+#### Date: Dec-15-2025
+ - Fix: Added package.json with "type": "module" to dist/esm/ directory to resolve CommonJS/ESM module format mismatch error when importing ESM builds
+
+### Version: 1.3.4
+#### Date: Nov-26-2025
+ - Fix: Prevent baseURL concatenation when absolute URLs (http:// or https://) are passed to getData() or created by live preview, preventing malformed URLs
+
 ### Version: 1.3.3
 #### Date: Nov-10-2025
  - Fix: Added 'exports' field to package.json to fix ESM import error where '@contentstack/core' does not provide an export named 'getData' in modern ESM environments (e.g., Nuxt.js, Vite)
