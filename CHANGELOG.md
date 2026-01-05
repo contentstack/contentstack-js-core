@@ -1,5 +1,9 @@
 ## Change log
 
+### Version: 1.3.6
+#### Date: Jan-05-2026
+ - Fix: Resolve qa dependency snyk issue
+
 ### Version: 1.3.5
 #### Date: Dec-15-2025
  - Fix: Added package.json with "type": "module" to dist/esm/ directory to resolve CommonJS/ESM module format mismatch error when importing ESM builds
