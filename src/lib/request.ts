@@ -9,6 +9,7 @@ import { ERROR_MESSAGES } from './error-messages';
  */
 function serializeParams(params: any): string {
   if (!params) return '';
+
   return serialize(params);
 }
 
@@ -16,14 +17,23 @@ function serializeParams(params: any): string {
  * Builds the full URL with query parameters
  */
 function buildFullUrl(baseURL: string | undefined, url: string, queryString: string): string {
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return `${url}?${queryString}`;
+  }
   const base = baseURL || '';
+
   return `${base}${url}?${queryString}`;
 }
 
 /**
  * Makes the HTTP request with proper URL handling
  */
-async function makeRequest(instance: AxiosInstance, url: string, requestConfig: any, actualFullUrl: string): Promise<any> {
+async function makeRequest(
+  instance: AxiosInstance,
+  url: string,
+  requestConfig: any,
+  actualFullUrl: string
+): Promise<any> {
   // If URL is too long, use direct axios request with full URL
   if (actualFullUrl.length > 2000) {
     return await instance.request({
@@ -70,11 +80,11 @@ export async function getData(instance: AxiosInstance, url: string, data?: any) 
         }
       }
     }
-    
+
     const requestConfig = {
       ...data,
       maxContentLength: Infinity,
-      maxBodyLength: Infinity
+      maxBodyLength: Infinity,
     };
     const queryString = serializeParams(requestConfig.params);
     const actualFullUrl = buildFullUrl(instance.defaults.baseURL, url, queryString);
