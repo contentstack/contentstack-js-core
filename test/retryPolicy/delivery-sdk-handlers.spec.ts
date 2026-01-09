@@ -83,7 +83,7 @@ describe('retryResponseErrorHandler', () => {
       expect(err).toEqual(
         expect.objectContaining({
           error_code: 408,
-          error_message: `Timeout of ${config.timeout}ms exceeded`,
+          error_message: `Request timeout of ${config.timeout}ms exceeded. Please try again or increase the timeout value in your configuration.`,
           errors: null,
         })
       );
