@@ -2,6 +2,7 @@ import { cloneDeep } from 'lodash';
 import { serialize } from './param-serializer';
 import axios, { AxiosRequestHeaders, getAdapter } from 'axios';
 import { AxiosInstance, HttpClientParams } from './types';
+import { ERROR_MESSAGES } from './error-messages';
 
 export function httpClient(options: HttpClientParams): AxiosInstance {
   const defaultConfig = {
@@ -17,12 +18,12 @@ export function httpClient(options: HttpClientParams): AxiosInstance {
       if (level === 'error') {
         if (data) {
           const title = [data.name, data.message].filter((a) => a).join(' - ');
-          console.error(`[error] ${title}`);
+          console.error(ERROR_MESSAGES.CONSOLE.ERROR_WITH_TITLE(title));
         }
         return;
       }
       if (data !== undefined) {
-        console.log(`[${level}] ${data}`);
+        console.log(ERROR_MESSAGES.CONSOLE.LEVEL_WITH_DATA(level, data));
       }
     },
     retryCondition: (error: any) => {

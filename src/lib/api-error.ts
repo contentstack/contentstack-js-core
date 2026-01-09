@@ -1,3 +1,5 @@
+import { ERROR_MESSAGES } from './error-messages';
+
 /**
  * Custom error class for API errors with optimized error handling
  */
@@ -27,10 +29,10 @@ export class APIError extends Error {
       return APIError.fromResponseData(err.response.data, err.response.status);
     } else if (err.message) {
       // For network errors or other non-HTTP errors
-      return new APIError(err.message, err.code || 'NETWORK_ERROR', 0);
+      return new APIError(err.message, err.code || ERROR_MESSAGES.ERROR_CODES.NETWORK_ERROR, 0);
     } else {
       // Fallback for unknown errors
-      return new APIError('Unknown error occurred', 'UNKNOWN_ERROR', 0);
+      return new APIError(ERROR_MESSAGES.API.UNKNOWN_ERROR, ERROR_MESSAGES.ERROR_CODES.UNKNOWN_ERROR, 0);
     }
   }
 
@@ -58,7 +60,7 @@ export class APIError extends Error {
     if (responseData.message) return responseData.message;
     if (responseData.error) return responseData.error;
     if (typeof responseData === 'string') return responseData;
-    return 'Request failed';
+    return ERROR_MESSAGES.API.REQUEST_FAILED();
   }
 
   /**

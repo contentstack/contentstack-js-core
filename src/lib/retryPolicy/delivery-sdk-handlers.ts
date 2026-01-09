@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-throw-literal */
 import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosInstance } from 'axios';
+import { ERROR_MESSAGES } from '../error-messages';
 
 declare module 'axios' {
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -35,8 +36,8 @@ export const retryResponseErrorHandler = (error: any, config: any, axiosInstance
     if (!response) {
       if (error.code === 'ECONNABORTED') {
         const customError = {
-          error_message: `Timeout of ${config.timeout}ms exceeded`,
-          error_code: 408,
+          error_message: ERROR_MESSAGES.RETRY.TIMEOUT_EXCEEDED(config.timeout),
+          error_code: ERROR_MESSAGES.ERROR_CODES.TIMEOUT,
           errors: null,
         };
         throw customError; // Throw customError object

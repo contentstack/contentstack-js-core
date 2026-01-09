@@ -1,6 +1,7 @@
 import { AxiosInstance } from './types';
 import { serialize } from './param-serializer';
 import { APIError } from './api-error';
+import { ERROR_MESSAGES } from './error-messages';
 
 /**
  * Handles array parameters properly with & separators
@@ -73,7 +74,7 @@ export async function getData(instance: AxiosInstance, url: string, data?: any) 
         // adds protocol so host is replaced and not appended
         if (livePreviewParams.live_preview && livePreviewParams.live_preview !== 'init') {
           if (!livePreviewParams.host) {
-            throw new Error('Host is required for live preview');
+            throw new Error(ERROR_MESSAGES.REQUEST.HOST_REQUIRED_FOR_LIVE_PREVIEW);
           }
           url = (livePreviewParams.host.startsWith('https://') ? '' : 'https://') + livePreviewParams.host + url;
         }
