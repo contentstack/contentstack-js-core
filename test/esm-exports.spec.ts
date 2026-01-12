@@ -28,7 +28,7 @@ describe('ESM Exports Tests', () => {
 
     it('should re-export getData from ESM index.js', () => {
       const indexContent = fs.readFileSync(esmIndexPath, 'utf-8');
-      expect(indexContent).toContain("export * from './lib/request'");
+      expect(indexContent).toContain("export * from './lib/request.js'");
     });
 
     it('should verify getData is a named export in ESM build', () => {
