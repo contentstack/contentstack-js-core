@@ -1,5 +1,20 @@
 ## Change log
 
+### Version: 1.3.8
+#### Date: Jan-12-2026
+ - Fix: Add .js extensions to relative imports in ESM build for proper module resolution
+ - Fix: Change lodash import from named import to default import for ESM compatibility with CommonJS modules
+
+### Version: 1.3.7
+#### Date: Jan-12-2026
+ - Fix: Improve error messages
+
+
+### Version: 1.3.8
+#### Date: Jan-15-2026
+ - Fix: Add .js extensions to relative imports in ESM build for proper module resolution
+ - Fix: Change lodash import from named import to default import for ESM compatibility with CommonJS modules
+
 ### Version: 1.3.7
 #### Date: Jan-12-2026
  - Fix: Improve error messages
