@@ -1,8 +1,12 @@
 ## Change log
 
+### Version: 1.3.7
+#### Date: Jan-12-2026
+ - Fix: Improve error messages
+
 ### Version: 1.3.6
 #### Date: Jan-05-2026
- - Fix: Resolve qa dependency snyk issue
+ - Fix: Resolve qs dependency snyk issue
 
 ### Version: 1.3.5
 #### Date: Dec-15-2025
