@@ -1,4 +1,4 @@
-import { cloneDeep } from 'lodash';
+import _ from 'lodash';
 import { serialize } from './param-serializer';
 import axios, { AxiosRequestHeaders, getAdapter } from 'axios';
 import { AxiosInstance, HttpClientParams } from './types';
@@ -20,6 +20,7 @@ export function httpClient(options: HttpClientParams): AxiosInstance {
           const title = [data.name, data.message].filter((a) => a).join(' - ');
           console.error(ERROR_MESSAGES.CONSOLE.ERROR_WITH_TITLE(title));
         }
+
         return;
       }
       if (data !== undefined) {
@@ -38,7 +39,7 @@ export function httpClient(options: HttpClientParams): AxiosInstance {
 
   const config: HttpClientParams = {
     ...defaultConfig,
-    ...cloneDeep(options),
+    ..._.cloneDeep(options),
   };
 
   if (config.apiKey && config.headers) {
