@@ -3,7 +3,7 @@ fileignoreconfig:
   ignore_detectors:
     - filecontent
 - filename: package-lock.json
-  checksum: af3bffd9f46b71daf5b8dd0b3eace75dfd367e359b11503259dc00a8c7105bf0
+  checksum: 59653dc17458f6bddffb6178bfb8f8191ad4715f41a788082a11d3b08e966b4c
 - filename: .husky/pre-commit
   checksum: 5baabd7d2c391648163f9371f0e5e9484f8fb90fa2284cfc378732ec3192c193
 - filename: test/request.spec.ts
@@ -14,4 +14,6 @@ fileignoreconfig:
   checksum: 08ccd6342b3adbeb7b85309a034b4df4b2ad905a0cc2a3778ab483b61ba41b9e
 - filename: test/retryPolicy/delivery-sdk-handlers.spec.ts
   checksum: 6d22d7482aa6dccba5554ae497e5b0c3572357a5cead6f4822ee4428edc12207
+- filename: test/contentstack-core.spec.ts
+  checksum: 2d1e0f63ad8ea37890de2aa6c7e394c83488888f4a40ad7a71eeba2290b95924
 version: ""
