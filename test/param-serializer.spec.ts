@@ -32,4 +32,23 @@ describe('serialize', () => {
     );
     done();
   });
+
+  it('should return comma-separated format when useCompactFormat is true', (done) => {
+    const param = serialize({ 'include[]': ['ref1', 'ref2', 'ref3'] }, true);
+    expect(param).toEqual('include=ref1%2Cref2%2Cref3');
+    done();
+  });
+
+  it('should return brackets format when useCompactFormat is false', (done) => {
+    const param = serialize({ 'include[]': ['ref1', 'ref2', 'ref3'] }, false);
+    expect(param).toEqual('include%5B%5D=ref1&include%5B%5D=ref2&include%5B%5D=ref3');
+    done();
+  });
+
+  it('should handle query param with compact format', (done) => {
+    const param = serialize({ 'include[]': ['ref1', 'ref2'], query: { title: 'test' } }, true);
+    expect(param).toContain('include=ref1%2Cref2');
+    expect(param).toContain('query=');
+    done();
+  });
 });

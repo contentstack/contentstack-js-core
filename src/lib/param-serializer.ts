@@ -1,9 +1,10 @@
 import * as Qs from 'qs';
 
-export function serialize(params: Record<string, any>) {
+export function serialize(params: Record<string, any>, useCompactFormat = false) {
   const query = params.query;
   delete params.query;
-  let qs = Qs.stringify(params, { arrayFormat: 'brackets' });
+  const arrayFormat = useCompactFormat ? 'comma' : 'brackets';
+  let qs = Qs.stringify(params, { arrayFormat });
   if (query) {
     qs = qs + `&query=${encodeURI(JSON.stringify(query))}`;
   }

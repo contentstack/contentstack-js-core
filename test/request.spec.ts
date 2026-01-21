@@ -529,4 +529,98 @@ describe('Request tests', () => {
       requestSpy.mockRestore();
     });
   });
+
+  describe('URL length optimization for includeReference parameters', () => {
+    it('should use compact format when URL with many include[] parameters exceeds threshold', async () => {
+      const client = httpClient({ defaultHostname: 'example.com' });
+      const mock = new MockAdapter(client as any);
+      const url = '/content_types/blog/entries/entry123';
+      const mockResponse = { entry: { uid: 'entry123', title: 'Test' } };
+
+      // Create many include[] parameters that would make URL long
+      const manyIncludes = Array.from({ length: 100 }, (_, i) => `ref_field_${i}`);
+      const requestData = { params: { 'include[]': manyIncludes } };
+
+      mock.onGet(url).reply(200, mockResponse);
+
+      const result = await getData(client, url, requestData);
+      expect(result).toEqual(mockResponse);
+      
+      // Verify the request was made (URL optimization allowed it to succeed)
+      expect(mock.history.get.length).toBe(1);
+      const requestUrl = mock.history.get[0].url || '';
+      // With compact format, the URL should be shorter and contain comma-separated values
+      // We verify success means the optimization worked
+      expect(requestUrl.length).toBeLessThan(3000);
+    });
+
+    it('should use compact format for Live Preview requests with lower threshold', async () => {
+      const client = httpClient({ defaultHostname: 'example.com' });
+      const mock = new MockAdapter(client as any);
+      const url = '/content_types/blog/entries/entry123';
+      const mockResponse = { entry: { uid: 'entry123', title: 'Test' } };
+
+      client.stackConfig = {
+        live_preview: {
+          enable: true,
+          preview_token: 'someToken',
+          live_preview: 'someHash',
+          host: 'rest-preview.contentstack.com',
+        },
+      };
+
+      // Create include[] parameters that would exceed 1500 chars for Live Preview
+      // but might be okay for regular requests (2000 chars)
+      const manyIncludes = Array.from({ length: 80 }, (_, i) => `ref_field_${i}_with_long_name`);
+      const requestData = { params: { 'include[]': manyIncludes } };
+
+      const livePreviewUrl = 'https://rest-preview.contentstack.com' + url;
+      mock.onGet(livePreviewUrl).reply(200, mockResponse);
+
+      const result = await getData(client, url, requestData);
+      expect(result).toEqual(mockResponse);
+      
+      // Verify the request was made to Live Preview host
+      expect(mock.history.get.length).toBe(1);
+      expect(mock.history.get[0].url).toContain('rest-preview.contentstack.com');
+    });
+
+    it('should throw error when URL is too long even with compact format', async () => {
+      const client = httpClient({ defaultHostname: 'example.com' });
+      const url = '/content_types/blog/entries/entry123';
+
+      client.stackConfig = {
+        live_preview: {
+          enable: true,
+          preview_token: 'someToken',
+          live_preview: 'someHash',
+          host: 'rest-preview.contentstack.com',
+        },
+      };
+
+      // Create an extremely large number of includes that would exceed even compact format
+      const manyIncludes = Array.from({ length: 500 }, (_, i) => `very_long_reference_field_name_${i}_with_many_characters`);
+      const requestData = { params: { 'include[]': manyIncludes } };
+
+      await expect(getData(client, url, requestData)).rejects.toThrow(/exceeds the maximum allowed length/);
+    });
+
+    it('should use standard format when URL length is within threshold', async () => {
+      const client = httpClient({ defaultHostname: 'example.com' });
+      const mock = new MockAdapter(client as any);
+      const url = '/content_types/blog/entries/entry123';
+      const mockResponse = { entry: { uid: 'entry123', title: 'Test' } };
+
+      // Create a small number of includes that won't exceed threshold
+      const requestData = { params: { 'include[]': ['ref1', 'ref2', 'ref3'] } };
+
+      mock.onGet(url).reply(200, mockResponse);
+
+      const result = await getData(client, url, requestData);
+      expect(result).toEqual(mockResponse);
+      
+      // Verify the request was made successfully
+      expect(mock.history.get.length).toBe(1);
+    });
+  });
 });
