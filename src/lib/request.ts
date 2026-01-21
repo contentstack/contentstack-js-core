@@ -10,7 +10,7 @@ import { ERROR_MESSAGES } from './error-messages';
 function serializeParams(params: any, useCompactFormat = false): string {
   if (!params) return '';
 
-  return serialize(params, useCompactFormat);
+  return serialize(params, { useCompactFormat } as any);
 }
 
 /**
