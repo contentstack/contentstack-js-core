@@ -7,10 +7,33 @@ import { ERROR_MESSAGES } from './error-messages';
  * Handles array parameters properly with & separators
  * React Native compatible implementation without URLSearchParams.set()
  */
-function serializeParams(params: any): string {
+function serializeParams(params: any, useCompactFormat = false): string {
   if (!params) return '';
 
-  return serialize(params);
+  return serialize(params, { useCompactFormat } as any);
+}
+
+/**
+ * Estimates the URL length that would be generated from the given parameters
+ * @param baseURL - The base URL
+ * @param url - The endpoint URL
+ * @param params - The query parameters
+ * @param useCompactFormat - Whether to use compact format for estimation
+ * @returns Estimated URL length
+ */
+function estimateUrlLength(baseURL: string | undefined, url: string, params: any, useCompactFormat = false): number {
+  if (!params) {
+    const base = baseURL || '';
+
+    return (url.startsWith('http://') || url.startsWith('https://') ? url : `${base}${url}`).length;
+  }
+
+  const queryString = serializeParams(params, useCompactFormat);
+  const base = baseURL || '';
+  const fullUrl =
+    url.startsWith('http://') || url.startsWith('https://') ? `${url}?${queryString}` : `${base}${url}?${queryString}`;
+
+  return fullUrl.length;
 }
 
 /**
@@ -59,6 +82,13 @@ function handleRequestError(err: any): Error {
 
 export async function getData(instance: AxiosInstance, url: string, data?: any) {
   try {
+    let isLivePreview = false;
+    let livePreviewUrl = url;
+
+    if (!data) {
+      data = {};
+    }
+
     if (instance.stackConfig && instance.stackConfig.live_preview) {
       const livePreviewParams = instance.stackConfig.live_preview;
 
@@ -76,7 +106,9 @@ export async function getData(instance: AxiosInstance, url: string, data?: any) 
           if (!livePreviewParams.host) {
             throw new Error(ERROR_MESSAGES.REQUEST.HOST_REQUIRED_FOR_LIVE_PREVIEW);
           }
-          url = (livePreviewParams.host.startsWith('https://') ? '' : 'https://') + livePreviewParams.host + url;
+          livePreviewUrl =
+            (livePreviewParams.host.startsWith('https://') ? '' : 'https://') + livePreviewParams.host + url;
+          isLivePreview = true;
         }
       }
     }
@@ -85,10 +117,41 @@ export async function getData(instance: AxiosInstance, url: string, data?: any) 
       ...data,
       maxContentLength: Infinity,
       maxBodyLength: Infinity,
-    };
-    const queryString = serializeParams(requestConfig.params);
-    const actualFullUrl = buildFullUrl(instance.defaults.baseURL, url, queryString);
-    const response = await makeRequest(instance, url, requestConfig, actualFullUrl);
+    } as any;
+
+    // Determine URL length thresholds
+    // Use lower threshold for Live Preview (1500) vs regular requests (2000)
+    const maxUrlLength = isLivePreview ? 1500 : 2000;
+    const baseURLForEstimation = isLivePreview ? undefined : instance.defaults.baseURL;
+    const urlForEstimation = isLivePreview ? livePreviewUrl : url;
+
+    // Estimate URL length with standard format
+    const estimatedLength = estimateUrlLength(baseURLForEstimation, urlForEstimation, requestConfig.params, false);
+    let useCompactFormat = false;
+
+    // If URL would exceed threshold, try compact format
+    if (estimatedLength > maxUrlLength) {
+      const compactEstimatedLength = estimateUrlLength(
+        baseURLForEstimation,
+        urlForEstimation,
+        requestConfig.params,
+        true
+      );
+      if (compactEstimatedLength <= maxUrlLength) {
+        useCompactFormat = true;
+      } else {
+        // Even with compact format, URL is too long
+        throw new Error(ERROR_MESSAGES.REQUEST.URL_TOO_LONG(compactEstimatedLength, maxUrlLength));
+      }
+    }
+
+    const queryString = serializeParams(requestConfig.params, useCompactFormat);
+    const actualFullUrl = buildFullUrl(
+      isLivePreview ? undefined : instance.defaults.baseURL,
+      isLivePreview ? livePreviewUrl : url,
+      queryString
+    );
+    const response = await makeRequest(instance, isLivePreview ? livePreviewUrl : url, requestConfig, actualFullUrl);
 
     if (response && response.data) {
       return response.data;
