@@ -28,6 +28,7 @@ describe('ESM Exports Tests', () => {
 
     it('should re-export getData from ESM index.js', () => {
       const indexContent = fs.readFileSync(esmIndexPath, 'utf-8');
+      // ESM builds include .js extension in import paths
       expect(indexContent).toContain("export * from './lib/request.js'");
     });
 
