@@ -26,6 +26,27 @@ function buildFullUrl(baseURL: string | undefined, url: string, queryString: str
 }
 
 /**
+ * Safely checks if a URL points to the preview endpoint by parsing the hostname
+ * This prevents substring matching vulnerabilities (e.g., evil.com/rest-preview.contentstack.com)
+ */
+function isPreviewEndpoint(url: string): boolean {
+  try {
+    // Ensure URL has a protocol for proper parsing
+    let urlToParse = url;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      urlToParse = `https://${url}`;
+    }
+    
+    const parsedUrl = new URL(urlToParse);
+    // Check hostname exactly, not as substring
+    return parsedUrl.hostname === 'rest-preview.contentstack.com';
+  } catch {
+    // If URL parsing fails, default to false for safety
+    return false;
+  }
+}
+
+/**
  * Makes the HTTP request with proper URL handling
  */
 async function makeRequest(
@@ -36,8 +57,8 @@ async function makeRequest(
 ): Promise<any> {
   // Determine URL length threshold based on whether it's a preview endpoint
   // rest-preview.contentstack.com has stricter limits, so use lower threshold
-  const isPreviewEndpoint = actualFullUrl.includes('rest-preview.contentstack.com');
-  const urlLengthThreshold = isPreviewEndpoint ? 1500 : 2000;
+  const isPreview = isPreviewEndpoint(actualFullUrl);
+  const urlLengthThreshold = isPreview ? 1500 : 2000;
 
   // If URL is too long, use direct axios request with full URL
   if (actualFullUrl.length > urlLengthThreshold) {
