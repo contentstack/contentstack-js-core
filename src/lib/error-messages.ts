@@ -25,9 +25,6 @@ export const ERROR_MESSAGES = {
   // Request Handler Messages
   REQUEST: {
     HOST_REQUIRED_FOR_LIVE_PREVIEW: 'Host is required for live preview. Please provide a valid host parameter in the live_preview configuration.',
-    URL_TOO_LONG: (urlLength: number, maxLength: number) => 
-      `Request URL length (${urlLength} characters) exceeds the maximum allowed length (${maxLength} characters). ` +
-      'Please reduce the number of includeReference parameters or split your request into multiple smaller requests.',
   },
 
   // Retry Policy Messages
