@@ -1,9 +1,5 @@
 ## Change log
 
-### Version: 1.3.9
-#### Date: Jan-26-2026
- - Fix: add url length estimation and compact format support for parameter serialization
-
 ### Version: 1.3.8
 #### Date: Jan-12-2026
  - Fix: Add .js extensions to relative imports in ESM build for proper module resolution
