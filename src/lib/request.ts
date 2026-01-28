@@ -7,33 +7,10 @@ import { ERROR_MESSAGES } from './error-messages';
  * Handles array parameters properly with & separators
  * React Native compatible implementation without URLSearchParams.set()
  */
-function serializeParams(params: any, useCompactFormat = false): string {
+function serializeParams(params: any): string {
   if (!params) return '';
 
-  return serialize(params, { useCompactFormat } as any);
-}
-
-/**
- * Estimates the URL length that would be generated from the given parameters
- * @param baseURL - The base URL
- * @param url - The endpoint URL
- * @param params - The query parameters
- * @param useCompactFormat - Whether to use compact format for estimation
- * @returns Estimated URL length
- */
-function estimateUrlLength(baseURL: string | undefined, url: string, params: any, useCompactFormat = false): number {
-  if (!params) {
-    const base = baseURL || '';
-
-    return (url.startsWith('http://') || url.startsWith('https://') ? url : `${base}${url}`).length;
-  }
-
-  const queryString = serializeParams(params, useCompactFormat);
-  const base = baseURL || '';
-  const fullUrl =
-    url.startsWith('http://') || url.startsWith('https://') ? `${url}?${queryString}` : `${base}${url}?${queryString}`;
-
-  return fullUrl.length;
+  return serialize(params);
 }
 
 /**
@@ -49,6 +26,27 @@ function buildFullUrl(baseURL: string | undefined, url: string, queryString: str
 }
 
 /**
+ * Safely checks if a URL points to the preview endpoint by parsing the hostname
+ * This prevents substring matching vulnerabilities (e.g., evil.com/rest-preview.contentstack.com)
+ */
+function isPreviewEndpoint(url: string): boolean {
+  try {
+    // Ensure URL has a protocol for proper parsing
+    let urlToParse = url;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      urlToParse = `https://${url}`;
+    }
+    
+    const parsedUrl = new URL(urlToParse);
+    // Check hostname exactly, not as substring
+    return parsedUrl.hostname === 'rest-preview.contentstack.com';
+  } catch {
+    // If URL parsing fails, default to false for safety
+    return false;
+  }
+}
+
+/**
  * Makes the HTTP request with proper URL handling
  */
 async function makeRequest(
@@ -57,16 +55,26 @@ async function makeRequest(
   requestConfig: any,
   actualFullUrl: string
 ): Promise<any> {
+  // Determine URL length threshold based on whether it's a preview endpoint
+  // rest-preview.contentstack.com has stricter limits, so use lower threshold
+  const isPreview = isPreviewEndpoint(actualFullUrl);
+  const urlLengthThreshold = isPreview ? 1500 : 2000;
+
   // If URL is too long, use direct axios request with full URL
-  if (actualFullUrl.length > 2000) {
+  if (actualFullUrl.length > urlLengthThreshold) {
+    // Remove params from requestConfig since they're already in actualFullUrl
+    const { params, ...configWithoutParams } = requestConfig;
     return await instance.request({
       method: 'get',
       url: actualFullUrl,
       headers: instance.defaults.headers,
       maxContentLength: Infinity,
       maxBodyLength: Infinity,
+      ...configWithoutParams,
     });
   } else {
+    // For URLs under threshold, use normal get with params
+    // Axios will handle serialization correctly for both absolute and relative URLs
     return await instance.get(url, requestConfig);
   }
 }
@@ -82,14 +90,7 @@ function handleRequestError(err: any): Error {
 
 export async function getData(instance: AxiosInstance, url: string, data?: any) {
   try {
-    let isLivePreview = false;
-    let livePreviewUrl = url;
-
-    if (!data) {
-      data = {};
-    }
-
-    if (instance.stackConfig && instance.stackConfig.live_preview) {
+    if (instance.stackConfig?.live_preview) {
       const livePreviewParams = instance.stackConfig.live_preview;
 
       if (livePreviewParams.enable) {
@@ -106,9 +107,7 @@ export async function getData(instance: AxiosInstance, url: string, data?: any) 
           if (!livePreviewParams.host) {
             throw new Error(ERROR_MESSAGES.REQUEST.HOST_REQUIRED_FOR_LIVE_PREVIEW);
           }
-          livePreviewUrl =
-            (livePreviewParams.host.startsWith('https://') ? '' : 'https://') + livePreviewParams.host + url;
-          isLivePreview = true;
+          url = (livePreviewParams.host.startsWith('https://') ? '' : 'https://') + livePreviewParams.host + url;
         }
       }
     }
@@ -117,43 +116,12 @@ export async function getData(instance: AxiosInstance, url: string, data?: any) 
       ...data,
       maxContentLength: Infinity,
       maxBodyLength: Infinity,
-    } as any;
+    };
+    const queryString = serializeParams(requestConfig.params);
+    const actualFullUrl = buildFullUrl(instance.defaults.baseURL, url, queryString);
+    const response = await makeRequest(instance, url, requestConfig, actualFullUrl);
 
-    // Determine URL length thresholds
-    // Use lower threshold for Live Preview (1500) vs regular requests (2000)
-    const maxUrlLength = isLivePreview ? 1500 : 2000;
-    const baseURLForEstimation = isLivePreview ? undefined : instance.defaults.baseURL;
-    const urlForEstimation = isLivePreview ? livePreviewUrl : url;
-
-    // Estimate URL length with standard format
-    const estimatedLength = estimateUrlLength(baseURLForEstimation, urlForEstimation, requestConfig.params, false);
-    let useCompactFormat = false;
-
-    // If URL would exceed threshold, try compact format
-    if (estimatedLength > maxUrlLength) {
-      const compactEstimatedLength = estimateUrlLength(
-        baseURLForEstimation,
-        urlForEstimation,
-        requestConfig.params,
-        true
-      );
-      if (compactEstimatedLength <= maxUrlLength) {
-        useCompactFormat = true;
-      } else {
-        // Even with compact format, URL is too long
-        throw new Error(ERROR_MESSAGES.REQUEST.URL_TOO_LONG(compactEstimatedLength, maxUrlLength));
-      }
-    }
-
-    const queryString = serializeParams(requestConfig.params, useCompactFormat);
-    const actualFullUrl = buildFullUrl(
-      isLivePreview ? undefined : instance.defaults.baseURL,
-      isLivePreview ? livePreviewUrl : url,
-      queryString
-    );
-    const response = await makeRequest(instance, isLivePreview ? livePreviewUrl : url, requestConfig, actualFullUrl);
-
-    if (response && response.data) {
+    if (response?.data) {
       return response.data;
     } else {
       throw response;
