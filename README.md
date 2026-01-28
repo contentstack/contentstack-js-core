@@ -10,7 +10,7 @@ Contentstack is a headless CMS with an API-first approach. It is a CMS that deve
 
 ## Description
 
-This package contains core modules and utilities used by the [Contentstack TypeScript Delivery SDK](https://github.com/contentstack/contentstack-javascript/). It provides essential functionality including HTTP client configuration, error handling, request management, parameter serialization, and retry policies.
+This package contains core modules and utilities used by the [Contentstack TypeScript Delivery SDK](https://github.com/contentstack/contentstack-typescript/). It provides essential functionality including HTTP client configuration, error handling, request management, parameter serialization, and retry policies.
 
 ## Features
 
@@ -39,8 +39,6 @@ Then import the modules:
 ```typescript
 import {
   httpClient,
-  ContentstackError,
-  ApiError,
   // ... other exports
 } from '@contentstack/core';
 ```
@@ -72,6 +70,7 @@ npm run build
 Build specific formats:
 
 ```bash
+npm run build        # Build all
 npm run build:cjs    # CommonJS
 npm run build:esm    # ES Modules
 npm run build:umd    # UMD
