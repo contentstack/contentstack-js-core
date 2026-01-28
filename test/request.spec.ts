@@ -22,7 +22,7 @@ describe('Request tests', () => {
 
     mockClient.onGet(url).reply(404, { error: errorMessage });
 
-    await expect(getData(client, url)).rejects.toThrowError(errorMessage);
+    await expect(getData(client, url)).rejects.toThrow(errorMessage);
   });
 
   it('should throw error when host is required for live preview', async () => {
@@ -35,7 +35,7 @@ describe('Request tests', () => {
         live_preview: '<live_preview_hash>', // this gets added via Delivery SDK; added here in core only for testing.
       },
     };
-    await expect(getData(client, url, {})).rejects.toThrowError('Host is required for live preview');
+    await expect(getData(client, url, {})).rejects.toThrow('Host is required for live preview');
   });
 
   it('should handle live_preview with enable=true and live_preview=init', async () => {
@@ -272,7 +272,7 @@ describe('Request tests', () => {
       throw customError;
     });
 
-    await expect(getData(client, url)).rejects.toThrowError('Custom network error');
+    await expect(getData(client, url)).rejects.toThrow('Custom network error');
   });
 
   it('should handle non-Error objects as errors when they have message property', async () => {
@@ -372,6 +372,9 @@ describe('Request tests', () => {
         maxBodyLength: Infinity,
       })
     );
+    // Verify that params were removed from the request config (they're already in the URL)
+    const callConfig = requestSpy.mock.calls[0][0];
+    expect(callConfig.params).toBeUndefined();
 
     requestSpy.mockRestore();
   });
@@ -525,38 +528,41 @@ describe('Request tests', () => {
       const callUrl = requestSpy.mock.calls[0][0].url;
       expect(callUrl).not.toContain('example.com:443/v3');
       expect(callUrl).toContain('external-api.com');
+      // Verify that params were removed from the request config
+      const callConfig = requestSpy.mock.calls[0][0];
+      expect(callConfig.params).toBeUndefined();
 
       requestSpy.mockRestore();
     });
-  });
 
-  describe('URL length optimization for includeReference parameters', () => {
-    it('should use compact format when URL with many include[] parameters exceeds threshold', async () => {
-      const client = httpClient({ defaultHostname: 'example.com' });
-      const mock = new MockAdapter(client as any);
-      const url = '/content_types/blog/entries/entry123';
-      const mockResponse = { entry: { uid: 'entry123', title: 'Test' } };
-
-      // Create many include[] parameters that would make URL long
-      const manyIncludes = Array.from({ length: 100 }, (_, i) => `ref_field_${i}`);
-      const requestData = { params: { 'include[]': manyIncludes } };
-
-      mock.onGet(url).reply(200, mockResponse);
-
-      const result = await getData(client, url, requestData);
-      expect(result).toEqual(mockResponse);
+    it('should remove params from requestConfig when absolute URL exceeds threshold', async () => {
+      const client = httpClient({
+        defaultHostname: 'example.com',
+      });
+      const absoluteUrl = 'https://external-api.com/api/endpoint';
+      const mockResponse = { data: 'mocked' };
       
-      // Verify the request was made (URL optimization allowed it to succeed)
-      expect(mock.history.get.length).toBe(1);
-      const requestUrl = mock.history.get[0].url || '';
-      // With compact format, the URL should be shorter and contain comma-separated values
-      // We verify success means the optimization worked
-      expect(requestUrl.length).toBeLessThan(3000);
+      // Create params that will make URL exceed 2000 characters
+      const longParam = 'x'.repeat(2000);
+      const requestData = { params: { longParam, param2: 'y'.repeat(500) } };
+
+      // Mock instance.request since URL will exceed threshold
+      const requestSpy = jest.spyOn(client, 'request').mockResolvedValue({ data: mockResponse } as any);
+
+      const result = await getData(client, absoluteUrl, requestData);
+
+      expect(result).toEqual(mockResponse);
+      // Verify that request was called with full URL
+      expect(requestSpy).toHaveBeenCalled();
+      // Verify that params were removed from the request config (they're in the URL)
+      const callConfig = requestSpy.mock.calls[0]?.[0];
+      expect(callConfig?.params).toBeUndefined();
+
+      requestSpy.mockRestore();
     });
 
-    it('should use compact format for Live Preview requests with lower threshold', async () => {
+    it('should use lower threshold (1500) for rest-preview.contentstack.com URLs', async () => {
       const client = httpClient({ defaultHostname: 'example.com' });
-      const mock = new MockAdapter(client as any);
       const url = '/content_types/blog/entries/entry123';
       const mockResponse = { entry: { uid: 'entry123', title: 'Test' } };
 
@@ -570,39 +576,73 @@ describe('Request tests', () => {
       };
 
       // Create include[] parameters that would exceed 1500 chars for Live Preview
-      // but might be okay for regular requests (2000 chars)
-      const manyIncludes = Array.from({ length: 80 }, (_, i) => `ref_field_${i}_with_long_name`);
+      // but would be under 2000 chars for regular requests
+      const manyIncludes = Array.from({ length: 100 }, (_, i) => `ref_field_${i}_with_long_name`);
       const requestData = { params: { 'include[]': manyIncludes } };
 
-      const livePreviewUrl = 'https://rest-preview.contentstack.com' + url;
-      mock.onGet(livePreviewUrl).reply(200, mockResponse);
+      // Mock instance.request since URL will exceed 1500 chars
+      const requestSpy = jest.spyOn(client, 'request').mockResolvedValue({ data: mockResponse } as any);
+
+      const result = await getData(client, url, requestData);
+
+      expect(result).toEqual(mockResponse);
+      // Verify that request was called (not get) because URL exceeded 1500 chars
+      expect(requestSpy).toHaveBeenCalled();
+      const callUrl = requestSpy.mock.calls[0]?.[0]?.url;
+      expect(callUrl).toBeDefined();
+      expect(callUrl).toContain('rest-preview.contentstack.com');
+      expect(callUrl!.length).toBeGreaterThan(1500);
+      // Verify that params were removed from the request config
+      const callConfig = requestSpy.mock.calls[0]?.[0];
+      expect(callConfig?.params).toBeUndefined();
+
+      requestSpy.mockRestore();
+    });
+  });
+
+  describe('URL length handling for includeReference parameters', () => {
+    it('should handle many include[] parameters without double serialization', async () => {
+      const client = httpClient({ defaultHostname: 'example.com' });
+      const mock = new MockAdapter(client as any);
+      const url = '/content_types/blog/entries/entry123';
+      const mockResponse = { entry: { uid: 'entry123', title: 'Test' } };
+
+      // Create many include[] parameters that would make URL long
+      const manyIncludes = Array.from({ length: 50 }, (_, i) => `ref_field_${i}`);
+      const requestData = { params: { 'include[]': manyIncludes } };
+
+      mock.onGet(url).reply((config) => {
+        // Verify params are present in config for relative URLs under threshold
+        expect(config.params).toBeDefined();
+        return [200, mockResponse];
+      });
 
       const result = await getData(client, url, requestData);
       expect(result).toEqual(mockResponse);
-      
-      // Verify the request was made to Live Preview host
       expect(mock.history.get.length).toBe(1);
-      expect(mock.history.get[0].url).toContain('rest-preview.contentstack.com');
     });
 
-    it('should throw error when URL is too long even with compact format', async () => {
+    it('should use instance.request for regular URLs exceeding 2000 characters', async () => {
       const client = httpClient({ defaultHostname: 'example.com' });
       const url = '/content_types/blog/entries/entry123';
+      const mockResponse = { entry: { uid: 'entry123', title: 'Test' } };
 
-      client.stackConfig = {
-        live_preview: {
-          enable: true,
-          preview_token: 'someToken',
-          live_preview: 'someHash',
-          host: 'rest-preview.contentstack.com',
-        },
-      };
-
-      // Create an extremely large number of includes that would exceed even compact format
-      const manyIncludes = Array.from({ length: 500 }, (_, i) => `very_long_reference_field_name_${i}_with_many_characters`);
+      // Create many include[] parameters that will exceed 2000 characters
+      const manyIncludes = Array.from({ length: 200 }, (_, i) => `ref_field_${i}_with_very_long_name_to_make_url_long`);
       const requestData = { params: { 'include[]': manyIncludes } };
 
-      await expect(getData(client, url, requestData)).rejects.toThrow(/exceeds the maximum allowed length/);
+      // Mock instance.request since URL will exceed 2000 chars
+      const requestSpy = jest.spyOn(client, 'request').mockResolvedValue({ data: mockResponse } as any);
+
+      const result = await getData(client, url, requestData);
+
+      expect(result).toEqual(mockResponse);
+      expect(requestSpy).toHaveBeenCalled();
+      // Verify that params were removed from the request config
+      const callConfig = requestSpy.mock.calls[0][0];
+      expect(callConfig.params).toBeUndefined();
+
+      requestSpy.mockRestore();
     });
 
     it('should use standard format when URL length is within threshold', async () => {
@@ -618,7 +658,6 @@ describe('Request tests', () => {
 
       const result = await getData(client, url, requestData);
       expect(result).toEqual(mockResponse);
-      
       // Verify the request was made successfully
       expect(mock.history.get.length).toBe(1);
     });

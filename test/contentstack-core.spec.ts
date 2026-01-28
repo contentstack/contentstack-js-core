@@ -165,7 +165,7 @@ describe('contentstackCore', () => {
       try {
         await instance.get('/');
       } catch (error: unknown) {
-        expect(onError).toBeCalledWith(error);
+        expect(onError).toHaveBeenCalledWith(error);
       }
 
       consoleErrorSpy.mockRestore();
@@ -186,7 +186,7 @@ describe('contentstackCore', () => {
 
       await client.get('/');
 
-      expect(client.httpClientParams.onError).not.toBeCalled();
+      expect(client.httpClientParams.onError).not.toHaveBeenCalled();
     });
   });
 
