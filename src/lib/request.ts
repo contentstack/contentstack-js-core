@@ -4,25 +4,18 @@ import { APIError } from './api-error';
 import { ERROR_MESSAGES } from './error-messages';
 
 /**
- * Handles array parameters properly with & separators
- * React Native compatible implementation without URLSearchParams.set()
- */
-function serializeParams(params: any): string {
-  if (!params) return '';
-
-  return serialize(params);
-}
-
-/**
  * Builds the full URL with query parameters
+ * Used only for long URLs that need to be passed directly to axios
  */
-function buildFullUrl(baseURL: string | undefined, url: string, queryString: string): string {
+function buildFullUrl(baseURL: string | undefined, url: string, params: any): string {
+  const queryString = params ? serialize(params) : '';
+  
   if (url.startsWith('http://') || url.startsWith('https://')) {
-    return `${url}?${queryString}`;
+    return queryString ? `${url}?${queryString}` : url;
   }
   const base = baseURL || '';
 
-  return `${base}${url}?${queryString}`;
+  return queryString ? `${base}${url}?${queryString}` : `${base}${url}`;
 }
 
 /**
@@ -58,7 +51,7 @@ async function makeRequest(
   // Determine URL length threshold based on whether it's a preview endpoint
   // rest-preview.contentstack.com has stricter limits, so use lower threshold
   const isPreview = isPreviewEndpoint(actualFullUrl);
-  const urlLengthThreshold = isPreview ? 1500 : 2000;
+  const urlLengthThreshold = isPreview ? 1500 : 8000; // Increased from 2000 to 8000
 
   // If URL is too long, use direct axios request with full URL
   if (actualFullUrl.length > urlLengthThreshold) {
@@ -117,8 +110,9 @@ export async function getData(instance: AxiosInstance, url: string, data?: any) 
       maxContentLength: Infinity,
       maxBodyLength: Infinity,
     };
-    const queryString = serializeParams(requestConfig.params);
-    const actualFullUrl = buildFullUrl(instance.defaults.baseURL, url, queryString);
+    
+    // Build full URL with serialized params (only used for long URLs)
+    const actualFullUrl = buildFullUrl(instance.defaults.baseURL, url, requestConfig.params);
     const response = await makeRequest(instance, url, requestConfig, actualFullUrl);
 
     if (response?.data) {
