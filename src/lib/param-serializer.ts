@@ -5,7 +5,7 @@ export function serialize(params: Record<string, any>) {
   delete params.query;
   let qs = Qs.stringify(params, { arrayFormat: 'brackets' });
   if (query) {
-    qs = qs + `&query=${encodeURI(JSON.stringify(query))}`;
+    qs = qs + `&query=${encodeURIComponent(JSON.stringify(query))}`;
   }
   params.query = query;
 
