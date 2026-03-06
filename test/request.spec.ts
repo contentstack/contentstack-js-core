@@ -346,15 +346,15 @@ describe('Request tests', () => {
     expect(result).toEqual(mockResponse);
   });
 
-  it('should use instance.request when URL length exceeds 2000 characters', async () => {
+  it('should use instance.request when URL length exceeds 8000 characters', async () => {
     const client = httpClient({ defaultHostname: 'example.com' });
     const url = '/your-api-endpoint';
     const mockResponse = { data: 'mocked' };
 
-    // Create a very long query parameter that will exceed 2000 characters when combined with baseURL
+    // Create a very long query parameter that will exceed 8000 characters when combined with baseURL
     // baseURL is typically like 'https://example.com:443/v3' (~30 chars), url is '/your-api-endpoint' (~20 chars)
-    // So we need params that serialize to >1950 chars to exceed 2000 total
-    const longParam = 'x'.repeat(2000);
+    // So we need params that serialize to >7950 chars to exceed 8000 total
+    const longParam = 'x'.repeat(8000);
     const requestData = { params: { longParam, param2: 'y'.repeat(500) } };
 
     // Mock instance.request since that's what gets called for long URLs
@@ -498,15 +498,15 @@ describe('Request tests', () => {
       expect(mock.history.get[0].url).toBe(absoluteUrl);
     });
 
-    it('should handle absolute URL when actualFullUrl exceeds 2000 characters', async () => {
+    it('should handle absolute URL when actualFullUrl exceeds 8000 characters', async () => {
       const client = httpClient({
         defaultHostname: 'example.com',
       });
       const absoluteUrl = 'https://external-api.com/api/endpoint';
       const mockResponse = { data: 'mocked' };
 
-      // Create a very long query parameter that will exceed 2000 characters
-      const longParam = 'x'.repeat(2000);
+      // Create a very long query parameter that will exceed 8000 characters
+      const longParam = 'x'.repeat(8000);
       const requestData = { params: { longParam, param2: 'y'.repeat(500) } };
 
       // Mock instance.request since that's what gets called for long URLs
@@ -542,8 +542,8 @@ describe('Request tests', () => {
       const absoluteUrl = 'https://external-api.com/api/endpoint';
       const mockResponse = { data: 'mocked' };
       
-      // Create params that will make URL exceed 2000 characters
-      const longParam = 'x'.repeat(2000);
+      // Create params that will make URL exceed 8000 characters
+      const longParam = 'x'.repeat(8000);
       const requestData = { params: { longParam, param2: 'y'.repeat(500) } };
 
       // Mock instance.request since URL will exceed threshold
@@ -576,7 +576,7 @@ describe('Request tests', () => {
       };
 
       // Create include[] parameters that would exceed 1500 chars for Live Preview
-      // but would be under 2000 chars for regular requests
+      // but would be under 8000 chars for regular requests
       const manyIncludes = Array.from({ length: 100 }, (_, i) => `ref_field_${i}_with_long_name`);
       const requestData = { params: { 'include[]': manyIncludes } };
 
@@ -622,16 +622,16 @@ describe('Request tests', () => {
       expect(mock.history.get.length).toBe(1);
     });
 
-    it('should use instance.request for regular URLs exceeding 2000 characters', async () => {
+    it('should use instance.request for regular URLs exceeding 8000 characters', async () => {
       const client = httpClient({ defaultHostname: 'example.com' });
       const url = '/content_types/blog/entries/entry123';
       const mockResponse = { entry: { uid: 'entry123', title: 'Test' } };
 
-      // Create many include[] parameters that will exceed 2000 characters
-      const manyIncludes = Array.from({ length: 200 }, (_, i) => `ref_field_${i}_with_very_long_name_to_make_url_long`);
+      // Create many include[] parameters that will exceed 8000 characters
+      const manyIncludes = Array.from({ length: 500 }, (_, i) => `ref_field_${i}_with_very_long_name_to_make_url_long`);
       const requestData = { params: { 'include[]': manyIncludes } };
 
-      // Mock instance.request since URL will exceed 2000 chars
+      // Mock instance.request since URL will exceed 8000 chars
       const requestSpy = jest.spyOn(client, 'request').mockResolvedValue({ data: mockResponse } as any);
 
       const result = await getData(client, url, requestData);
