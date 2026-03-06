@@ -1,5 +1,10 @@
 ## Change log
 
+### Version: 1.3.11
+#### Date: March-09-2026
+ - Fix: Upgrade qs dependency
+
+
 ### Version: 1.3.10
 #### Date: Feb-13-2026
  - Fix: fix url encode for special symbols.
