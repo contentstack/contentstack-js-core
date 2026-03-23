@@ -1,4 +1,5 @@
 import { APIError } from '../src/lib/api-error';
+import { ERROR_MESSAGES } from '../src/lib/error-messages';
 
 describe('APIError', () => {
   describe('constructor', () => {
@@ -55,6 +56,32 @@ describe('APIError', () => {
       expect(error.status).toBe(0);
     });
 
+    it('should use zero-status message when response status is 0', () => {
+      const axiosError = {
+        message: 'Network Error',
+        response: { status: 0 },
+      };
+
+      const error = APIError.fromAxiosError(axiosError);
+
+      expect(error.error_message).toBe(ERROR_MESSAGES.API.ZERO_STATUS_OR_NO_RESPONSE);
+      expect(error.status).toBe(0);
+    });
+
+    it('should use zero-status message when request was sent but no response (e.g. browser CORS)', () => {
+      const axiosError = {
+        message: 'Network Error',
+        code: 'ERR_NETWORK',
+        request: {},
+      };
+
+      const error = APIError.fromAxiosError(axiosError);
+
+      expect(error.error_message).toBe(ERROR_MESSAGES.API.ZERO_STATUS_OR_NO_RESPONSE);
+      expect(error.error_code).toBe('ERR_NETWORK');
+      expect(error.status).toBe(0);
+    });
+
     it('should create APIError from axios error with message but no code', () => {
       const axiosError = {
         message: 'Network Error',
@@ -79,17 +106,7 @@ describe('APIError', () => {
       expect(error.status).toBe(0);
     });
 
-    it('should handle axios error with response.data but no response.status', () => {
-      const axiosError = {
-        response: {
-          data: {
-            error_message: 'Server Error',
-          },
-        },
-      };
-
-      // This should call fromResponseData, which requires status
-      // Let's test with a proper status
+    it('should handle axios error with response.data and status', () => {
       const axiosErrorWithStatus = {
         response: {
           data: {
