@@ -15,6 +15,9 @@ export const ERROR_MESSAGES = {
   // API Error Messages
   API: {
     NETWORK_ERROR: 'Network error occurred. Please check your internet connection and try again.',
+    /** Shown when HTTP status is 0 or the client never received a response (common with CORS/header blocks in browsers). */
+    ZERO_STATUS_OR_NO_RESPONSE:
+      'Request failed before a response was received (HTTP status 0). In browsers this often means the call did not reach the API—check CORS configuration, request headers, network connectivity, mixed content (HTTPS page calling HTTP), and the browser network tab for details.',
     UNKNOWN_ERROR: 'An unknown error occurred. Please try again or contact support if the issue persists.',
     REQUEST_FAILED: (status?: number) => 
       status 
