@@ -25,15 +25,36 @@ export class APIError extends Error {
    * @returns Formatted APIError with meaningful information
    */
   static fromAxiosError(err: any): APIError {
-    if (err.response?.data) {
-      return APIError.fromResponseData(err.response.data, err.response.status);
-    } else if (err.message) {
-      // For network errors or other non-HTTP errors
-      return new APIError(err.message, err.code || ERROR_MESSAGES.ERROR_CODES.NETWORK_ERROR, 0);
-    } else {
-      // Fallback for unknown errors
-      return new APIError(ERROR_MESSAGES.API.UNKNOWN_ERROR, ERROR_MESSAGES.ERROR_CODES.UNKNOWN_ERROR, 0);
+    const response = err.response;
+    const status = response?.status;
+
+    // Status 0 or no response body after a "response" object — not a normal HTTP error from the API
+    if (status === 0) {
+      return new APIError(
+        ERROR_MESSAGES.API.ZERO_STATUS_OR_NO_RESPONSE,
+        err.code || ERROR_MESSAGES.ERROR_CODES.NETWORK_ERROR,
+        0,
+      );
     }
+
+    if (response?.data) {
+      return APIError.fromResponseData(response.data, status);
+    }
+
+    // Request was sent but no response (typical for browser CORS / blocked preflight / network drop)
+    if (err.request != null && response == null) {
+      return new APIError(
+        ERROR_MESSAGES.API.ZERO_STATUS_OR_NO_RESPONSE,
+        err.code || ERROR_MESSAGES.ERROR_CODES.NETWORK_ERROR,
+        0,
+      );
+    }
+
+    if (err.message) {
+      return new APIError(err.message, err.code || ERROR_MESSAGES.ERROR_CODES.NETWORK_ERROR, 0);
+    }
+
+    return new APIError(ERROR_MESSAGES.API.UNKNOWN_ERROR, ERROR_MESSAGES.ERROR_CODES.UNKNOWN_ERROR, 0);
   }
 
   /**
