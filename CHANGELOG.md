@@ -1,5 +1,9 @@
 ## Change log
 
+### Version: 1.3.12
+#### Date: March-23-2026
+ - Fix: Handling axios error when status code is 0
+
 ### Version: 1.3.11
 #### Date: March-09-2026
  - Fix: Upgrade qs dependency
