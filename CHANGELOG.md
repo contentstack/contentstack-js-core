@@ -1,5 +1,9 @@
 ## Change log
 
+### Version: 1.3.13
+#### Date: April-15-2026
+ - Fix: Axios version bump
+
 ### Version: 1.3.12
 #### Date: March-23-2026
  - Fix: Handling axios error when status code is 0
