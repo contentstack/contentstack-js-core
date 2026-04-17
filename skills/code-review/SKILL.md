@@ -1,20 +1,27 @@
 ---
 name: code-review
-description: PR review for @contentstack/core — public exports, delivery-sdk impact, errors, tests, coverage.
+description: Use when reviewing PRs or preparing changes for contentstack-js-core—API stability, tests, and consumer impact.
 ---
 
-# Code review — `@contentstack/core`
+# Code review – contentstack-js-core
 
-## Checklist
+## When to use
 
-- [ ] **Exports:** `src/index.ts` and `package.json` `exports` stay aligned; no accidental removal of symbols **delivery-sdk** uses.
-- [ ] **Semver:** Breaking type or runtime changes → **major**; additive → **minor** / **patch** as appropriate.
-- [ ] **HTTP / retry:** Behavior matches documented Axios options; 429 / retry paths still tested.
-- [ ] **Errors:** `ContentstackError` / `ApiError` patterns preserved; no token leakage in logs.
-- [ ] **Tests:** `npm test` passes; coverage thresholds in `jest.config.ts` satisfied.
-- [ ] **Lint:** `npm run lint` passes.
+- Authoring or reviewing a PR
+- Judging whether a change is safe for downstream SDKs
 
-## References
+## Instructions
 
-- `.cursor/rules/code-review.mdc`
-- `.cursor/rules/dev-workflow.md`
+### Checklist
+
+- **API / exports**: Any change to public exports or types that could break `@contentstack/delivery-sdk` or other consumers?
+- **Behavior**: Retries, errors, and serialization remain backward compatible unless semver major.
+- **Tests**: New logic covered; existing tests updated when semantics change.
+- **Build**: `npm run build` and `npm test` and `npm run lint` succeed.
+- **Security / deps**: Dependency bumps justified; no secrets in code or tests.
+
+### Severity hints
+
+- **Blocker**: Breaking change without major version or failing CI.
+- **Major**: Missing tests for risky HTTP/error changes.
+- **Minor**: Style, naming, or internal refactors with full green CI.
