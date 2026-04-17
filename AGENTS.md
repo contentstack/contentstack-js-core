@@ -1,55 +1,43 @@
-# AGENTS.md — AI / automation context
+# @contentstack/core – Agent guide
 
-## Project
+**Universal entry point** for contributors and AI agents. Detailed conventions live in **`skills/*/SKILL.md`**.
 
-| | |
-|---|---|
-| **Name** | **`@contentstack/core`** (npm) — **Contentstack JavaScript / TypeScript core library** |
-| **Purpose** | Foundational HTTP client, errors, serialization, and retry helpers consumed by **Contentstack TypeScript Delivery SDK** (`@contentstack/delivery-sdk`) and related packages. **Not** an app-facing CDA client by itself. |
-| **Repository** | [contentstack/contentstack-js-core](https://github.com/contentstack/contentstack-js-core.git) |
+## What this repo is
 
-## Tech stack
+| Field | Detail |
+|--------|--------|
+| **Name:** | [contentstack-js-core](https://github.com/contentstack/contentstack-js-core) (`@contentstack/core`) |
+| **Purpose:** | TypeScript core library: HTTP client wiring, errors, serialization, retries—shared by Contentstack TS SDKs. |
+| **Out of scope:** | Not an end-user SDK; apps should use the Delivery SDK, which depends on this package. |
+
+## Tech stack (at a glance)
 
 | Area | Details |
 |------|---------|
-| **Language** | **TypeScript** in `src/` |
-| **HTTP** | **Axios** (`src/lib/contentstack-core.ts`), **qs** / custom **`param-serializer`**, **lodash** |
-| **Build** | **TypeScript** → **CJS** / **ESM** / **types** (`config/tsconfig.*.json`); **UMD** via **webpack** (`config/webpack.config.js`) |
-| **Lint** | **ESLint** (Airbnb TypeScript + Prettier; `.eslintrc.js` / `.eslintrc.json`) |
-| **Tests** | **Jest** + **ts-jest** (`jest.config.ts`, `test/**/*.spec.ts`); coverage thresholds in Jest config |
+| Language | TypeScript (see `typescript` in `package.json`; `config/tsconfig.*.json`) |
+| Build | `tsc` (CJS/ESM/types) + Webpack UMD (`config/webpack.config.js`, `tools/`) |
+| Tests | Jest → `test/` (`npm test` → `jest ./test`) |
+| Lint / coverage | ESLint `.eslintrc.js` (`npm run lint`) |
+| CI | `.github/workflows/unit-test.yml`, `check-branch.yml`, `sca-scan.yml`, `policy-scan.yml`, `codeql-analysis.yml` |
 
-## Source layout
+## Commands (quick reference)
 
-| Path | Role |
-|------|------|
-| `src/index.ts` | Public exports |
-| `src/lib/contentstack-core.ts` | **`httpClient`** factory, Axios config |
-| `src/lib/request.ts` / `param-serializer.ts` | Request wiring and query serialization |
-| `src/lib/contentstack-error.ts` / `api-error.ts` / `error-messages.ts` | Error types and messages |
-| `src/lib/retryPolicy/delivery-sdk-handlers.ts` | Retry interceptors for delivery SDK |
-| `src/lib/types.ts` | Shared TS types |
-| `config/` | TS compiler + webpack configs |
-| `tools/` | `cleanup`, `postbuild` |
-| `dist/` | Published artifacts (`package.json` `exports`) |
+| Command type | Command |
+|--------------|---------|
+| Build | `npm run build` |
+| Test | `npm test` |
+| Lint | `npm run lint` |
 
-## Common commands
+## Where the documentation lives: skills
 
-```bash
-npm install
-npm run build        # cjs + esm + umd + types
-npm run lint         # eslint . -c .eslintrc.js
-npm test             # jest ./test
-npm run clean        # node tools/cleanup
-```
+| Skill | Path | What it covers |
+|-------|------|----------------|
+| **Development workflow** | [`skills/dev-workflow/SKILL.md`](skills/dev-workflow/SKILL.md) | Branches, CI, npm scripts, Husky, release notes |
+| **Contentstack core (package)** | [`skills/contentstack-core/SKILL.md`](skills/contentstack-core/SKILL.md) | `@contentstack/core` boundaries, public surface, dependency role |
+| **TypeScript & layout** | [`skills/typescript/SKILL.md`](skills/typescript/SKILL.md) | `src/`, `config/` tsconfigs, ESM/CJS/UMD outputs |
+| **Testing** | [`skills/testing/SKILL.md`](skills/testing/SKILL.md) | Jest layout, mocks, fixtures |
+| **Code review** | [`skills/code-review/SKILL.md`](skills/code-review/SKILL.md) | PR expectations and checklist |
 
-## Consumer relationship
+## Using Cursor (optional)
 
-- **End users** should depend on **`@contentstack/delivery-sdk`**, not usually this package directly.
-- When changing public exports or behavior, consider impact on **contentstack-typescript** and semver for **`@contentstack/core`**.
-
-## Further guidance
-
-- **Cursor rules:** [`.cursor/rules/README.md`](.cursor/rules/README.md)
-- **Skills:** [`skills/README.md`](skills/README.md)
-
-Official API context for consumers: [Content Delivery API](https://www.contentstack.com/docs/developers/apis/content-delivery-api/).
+If you use **Cursor**, [`.cursor/rules/README.md`](.cursor/rules/README.md) only points to **`AGENTS.md`**—same docs as everyone else.

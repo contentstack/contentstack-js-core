@@ -1,28 +1,23 @@
 ---
 name: testing
-description: Run and extend Jest tests for @contentstack/core — ts-jest, coverage, mocks.
+description: Use when writing or fixing Jest tests, mocks, or test layout under test/ in contentstack-js-core.
 ---
 
-# Testing — `@contentstack/core`
+# Testing – contentstack-js-core
 
-## Commands
+## When to use
 
-| Goal | Command |
-|------|---------|
-| Unit tests | `npm test` → `jest ./test` |
-| Lint | `npm run lint` |
-| Build (before packaging) | `npm run build` |
+- Adding coverage for new `src/` behavior
+- Fixing flaky or outdated tests under `test/`
 
-## Config
+## Instructions
 
-- **`jest.config.ts`** — displayName, **ts-jest**, `tsconfig.spec.json`, **collectCoverageFrom** `src/**` (minus index if excluded), **coverageThreshold** (high bar).
-- Reporters: HTML under **`reports/contentstack-js-core/html`**, JUnit under **`reports/contentstack-js-core/junit`**.
+### Runner and layout
 
-## Patterns
+- **Jest** is configured for this repo; tests live under **`test/`** (`npm test` runs `jest ./test`).
+- Prefer focused unit tests near the behavior under test; use mocks for HTTP where `axios` or adapters are involved.
 
-- Use **axios-mock-adapter** or **`test/utils/mocks.ts`** for HTTP.
-- Name files **`*.spec.ts`** next to or under **`test/`** per existing layout.
+### Practice
 
-## References
-
-- `.cursor/rules/testing.mdc`
+- Run the full suite before merging: `npm test`.
+- Keep tests deterministic—no live network calls to Contentstack APIs in CI unless a dedicated integration job exists and secrets are available.
