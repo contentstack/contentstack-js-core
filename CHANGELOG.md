@@ -1,8 +1,13 @@
 ## Change log
 
 ### Version: 1.3.13
+
 #### Date: April-15-2026
  - Fix: Axios version bump
+ 
+#### Date: April-13-2026
+ - Fix: Bump axios and lodash dependency ranges
+
 
 ### Version: 1.3.12
 #### Date: March-23-2026
@@ -88,7 +93,6 @@
 #### Date: Oct-22-2024
  - Fix: getData to receive params and headers both in data
 
-## Change log
 ### Version: 1.1.2
 #### Date: Oct-22-2024
  - Node version bump
