@@ -1,0 +1,22 @@
+---
+description: "Jest tests and coverage for @contentstack/core"
+globs: ["test/**/*.ts"]
+alwaysApply: false
+---
+
+# Testing — contentstack-js-core
+
+## Runner
+
+- **Jest** + **ts-jest** — see **`jest.config.ts`** / **`jest.preset.js`** / **`tsconfig.spec.json`**.
+- **Coverage** is collected from **`src/**`** (with exclusions in config); **global thresholds** (branches/functions/lines/statements) apply — see `jest.config.ts`.
+
+## Layout
+
+- Specs: **`test/*.spec.ts`** (e.g. `request.spec.ts`, `contentstack-core.spec.ts`).
+- Shared mocks: **`test/utils/mocks.ts`**.
+
+## Hygiene
+
+- No **committed** `it.only` / `describe.only` meant for CI.
+- Avoid live network calls in unit tests unless explicitly an integration suite (this repo is primarily mocked unit tests).

@@ -1,0 +1,25 @@
+---
+description: "PR checklist for @contentstack/core — exports, semver, errors, tests, consumers"
+alwaysApply: true
+---
+
+# Code review — `@contentstack/core`
+
+## Public API
+
+- **`src/index.ts`** exports match intended **npm `exports`**; new surface is documented and versioned.
+- Changes that affect **`@contentstack/delivery-sdk`** require a coordinated plan (bump **core** + **SDK** as needed).
+
+## Implementation
+
+- Axios / retry / serializer changes remain **backward compatible** unless this is a **major** release.
+- Errors use existing **classes** and **messages**; do not leak secrets in **logs** or **errors**.
+
+## Tests & quality
+
+- New logic includes **`test/*.spec.ts`** (or extends existing specs); **coverage thresholds** must still pass.
+- **Lint** clean.
+
+## Dependencies
+
+- New dependencies need justification (bundle size, maintenance, license).
