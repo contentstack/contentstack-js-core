@@ -2,12 +2,14 @@
 
 ### Version: 1.3.13
 
+#### Date: May-04-2026
+ - Fix: Bump axios to ^1.15.2 (security patches for axios 1.15.0)
+
 #### Date: April-15-2026
  - Fix: Axios version bump
  
 #### Date: April-13-2026
  - Fix: Bump axios and lodash dependency ranges
-
 
 ### Version: 1.3.12
 #### Date: March-23-2026
