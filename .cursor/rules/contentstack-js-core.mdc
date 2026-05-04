@@ -1,0 +1,24 @@
+---
+description: "@contentstack/core — Axios httpClient, errors, serialization, retry policies"
+globs: ["src/**/*.ts"]
+alwaysApply: false
+---
+
+# `@contentstack/core` implementation
+
+## HTTP
+
+- **`httpClient(options)`** in **`src/lib/contentstack-core.ts`** builds the **Axios** instance: **baseURL**, headers (**api_key**, **access_token**), **timeout**, **retryCondition** (e.g. **429**), **logHandler**, **versioningStrategy**, etc.
+- **`src/lib/request.ts`** and **`param-serializer.ts`** implement delivery-oriented query/body serialization — keep behavior aligned with CDA query expectations.
+
+## Errors
+
+- Use **`ContentstackError`** / **`ApiError`** and **`error-messages.ts`** for consistent messaging; preserve **status** / response metadata where applicable.
+
+## Retries
+
+- **`src/lib/retryPolicy/delivery-sdk-handlers.ts`** provides Axios interceptors (**retryRequestHandler**, **retryResponseHandler**, **retryResponseErrorHandler**) — changes here affect all consumers (including **@contentstack/delivery-sdk**).
+
+## Testing
+
+- Prefer **axios-mock-adapter** or mocks in **`test/utils`**; keep **`*.spec.ts`** focused and deterministic.
