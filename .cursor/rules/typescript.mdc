@@ -1,0 +1,28 @@
+---
+description: "TypeScript and repo conventions for @contentstack/core"
+globs:
+  - "src/**/*.ts"
+  - "config/**/*.ts"
+  - "config/**/*.js"
+  - "tools/**/*.js"
+  - "jest.config.ts"
+  - "jest.preset.js"
+alwaysApply: false
+---
+
+# TypeScript — contentstack-js-core
+
+## Layout
+
+- **`src/lib/*.ts`** — implementation modules; **`src/index.ts`** re-exports the public surface.
+- **Configs** live under **`config/`** (multiple `tsconfig.*.json`, webpack).
+
+## Style
+
+- Follow **ESLint** (Airbnb TypeScript + Prettier) and existing patterns in `src/lib/`.
+- Prefer **explicit types** on public exports and Axios-related options.
+- Use **lodash** / **axios** patterns already present in `contentstack-core.ts` and `request.ts`.
+
+## Security
+
+- Do not log **api keys**, **access tokens**, or full auth headers in new code; align with existing **`logHandler`** usage.
