@@ -1,5 +1,9 @@
 ## Change log
 
+### Version: 1.3.15
+#### Date: May-25-2026
+ - Fix: Bump axios to ^1.16.1 and qs to 6.15.2
+
 ### Version: 1.3.14
 #### Date: May-04-2026
  - Fix: Bump axios to ^1.15.2 (security patches for axios 1.15.0)
