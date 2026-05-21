@@ -15,6 +15,24 @@ const defaultConfig = {
   retryDelay: 300,
 };
 
+const DEFAULT_RETRY_DELAY_MS = 300;
+
+/**
+ * Resolve retry delay from customBackoff, configured retryDelay, or default.
+ */
+export const getRetryDelay = (config: any): number => {
+  if (config.retryDelayOptions?.customBackoff) {
+    return config.retryDelayOptions.customBackoff();
+  }
+
+  const retryDelay = config.retryDelay;
+  if (retryDelay) {
+    return retryDelay;
+  }
+
+  return DEFAULT_RETRY_DELAY_MS;
+};
+
 export const retryRequestHandler = (req: InternalAxiosRequestConfig<any>): InternalAxiosRequestConfig<any> => {
   req.retryCount = req.retryCount || 1;
 
@@ -34,6 +52,12 @@ export const retryResponseErrorHandler = (error: any, config: any, axiosInstance
 
     const response = error.response;
     if (!response) {
+      if (config.retryCondition && config.retryCondition(error)) {
+        retryCount++;
+
+        return retry(error, config, retryCount, getRetryDelay(config), axiosInstance);
+      }
+
       if (error.code === 'ECONNABORTED') {
         const customError = {
           error_message: ERROR_MESSAGES.RETRY.TIMEOUT_EXCEEDED(config.timeout),
@@ -41,67 +65,67 @@ export const retryResponseErrorHandler = (error: any, config: any, axiosInstance
           errors: null,
         };
         throw customError; // Throw customError object
-      } else {
-        throw error;
       }
-    } else {
-      const rateLimitRemaining = response.headers['x-ratelimit-remaining'];
 
-      // Handle rate limit exhaustion with retry logic
-      if (rateLimitRemaining !== undefined && parseInt(rateLimitRemaining) <= 0) {
-        retryCount++;
+      throw error;
+    }
 
-        if (retryCount >= config.retryLimit) {
+    const rateLimitRemaining = response.headers['x-ratelimit-remaining'];
+
+    // Handle rate limit exhaustion with retry logic
+    if (rateLimitRemaining !== undefined && parseInt(rateLimitRemaining) <= 0) {
+      retryCount++;
+
+      if (retryCount >= config.retryLimit) {
+        return Promise.reject(error.response.data);
+      }
+
+      error.config.retryCount = retryCount;
+
+      // Calculate delay for rate limit reset
+      const rateLimitResetDelay = calculateRateLimitDelay(response.headers);
+
+      return new Promise((resolve, reject) => {
+        setTimeout(async () => {
+          try {
+            const retryResponse = await axiosInstance(error.config);
+            resolve(retryResponse);
+          } catch (retryError) {
+            reject(retryError);
+          }
+        }, rateLimitResetDelay);
+      });
+    }
+
+    if (response.status == 429 || response.status == 401) {
+      retryCount++;
+
+      if (retryCount >= config.retryLimit) {
+        if (error.response && error.response.data) {
           return Promise.reject(error.response.data);
         }
 
-        error.config.retryCount = retryCount;
-
-        // Calculate delay for rate limit reset
-        const rateLimitResetDelay = calculateRateLimitDelay(response.headers);
-
-        return new Promise((resolve, reject) => {
-          setTimeout(async () => {
-            try {
-              const retryResponse = await axiosInstance(error.config);
-              resolve(retryResponse);
-            } catch (retryError) {
-              reject(retryError);
-            }
-          }, rateLimitResetDelay);
-        });
+        return Promise.reject(error);
       }
+      error.config.retryCount = retryCount;
 
-      if (response.status == 429 || response.status == 401) {
-        retryCount++;
-
-        if (retryCount >= config.retryLimit) {
-          if (error.response && error.response.data) {
-            return Promise.reject(error.response.data);
+      // Apply configured delay for retries
+      return new Promise((resolve, reject) => {
+        setTimeout(async () => {
+          try {
+            const retryResponse = await axiosInstance(error.config);
+            resolve(retryResponse);
+          } catch (retryError) {
+            reject(retryError);
           }
-
-          return Promise.reject(error);
-        }
-        error.config.retryCount = retryCount;
-
-        // Apply configured delay for retries
-        return new Promise((resolve, reject) => {
-          setTimeout(async () => {
-            try {
-              const retryResponse = await axiosInstance(error.config);
-              resolve(retryResponse);
-            } catch (retryError) {
-              reject(retryError);
-            }
-          }, config.retryDelay || 300); // Use configured delay with fallback
-        });
-      }
+        }, getRetryDelay(config));
+      });
     }
 
     if (config.retryCondition && config.retryCondition(error)) {
       retryCount++;
 
-      return retry(error, config, retryCount, config.retryDelay, axiosInstance);
+      return retry(error, config, retryCount, getRetryDelay(config), axiosInstance);
     }
 
     throw error;
@@ -114,8 +138,7 @@ const retry = (error: any, config: any, retryCount: number, retryDelay: number, 
     return Promise.reject(error);
   }
 
-  // Use the passed retryDelay parameter first, then config.retryDelay, then default
-  const delayTime = retryDelay || config.retryDelay || 300;
+  const delayTime = retryDelay || getRetryDelay(config);
   error.config.retryCount = retryCount;
 
   return new Promise(function (resolve, reject) {
