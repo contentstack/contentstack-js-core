@@ -5,6 +5,7 @@ import {
   retryResponseHandler,
   retryResponseErrorHandler,
   calculateRateLimitDelay,
+  getRetryDelay,
 } from '../../src/lib/retryPolicy/delivery-sdk-handlers';
 import MockAdapter from 'axios-mock-adapter';
 
@@ -72,6 +73,134 @@ describe('retryResponseErrorHandler', () => {
       expect(err).toEqual(error);
     }
   });
+  it('should retry network-level errors when retryCondition returns true', async () => {
+    const error = {
+      config: { retryOnError: true, retryCount: 1, method: 'get', url: '/network-retry' },
+      code: 'ETIMEDOUT',
+      message: 'connect ETIMEDOUT',
+    };
+    const retryCondition = jest.fn().mockReturnValue(true);
+    const config = { retryLimit: 3, retryCondition, retryDelay: 200 };
+    const client = axios.create();
+
+    mock.onGet('/network-retry').reply(200, { success: true });
+
+    jest.useFakeTimers();
+
+    const responsePromise = retryResponseErrorHandler(error, config, client);
+    jest.advanceTimersByTime(200);
+
+    const response = (await responsePromise) as AxiosResponse;
+    expect(response.status).toBe(200);
+    expect(retryCondition).toHaveBeenCalledWith(error);
+
+    jest.useRealTimers();
+  });
+
+  it('should retry ECONNRESET when retryCondition returns true', async () => {
+    const error = {
+      config: { retryOnError: true, retryCount: 1, method: 'get', url: '/conn-reset' },
+      code: 'ECONNRESET',
+      message: 'socket hang up',
+    };
+    const retryCondition = jest.fn().mockImplementation((err: any) => err.code === 'ECONNRESET');
+    const config = { retryLimit: 3, retryCondition, retryDelay: 150 };
+    const client = axios.create();
+
+    mock.onGet('/conn-reset').reply(200, { recovered: true });
+
+    jest.useFakeTimers();
+
+    const responsePromise = retryResponseErrorHandler(error, config, client);
+    jest.advanceTimersByTime(150);
+
+    const response = (await responsePromise) as AxiosResponse;
+    expect(response.data.recovered).toBe(true);
+
+    jest.useRealTimers();
+  });
+
+  it('should rethrow network errors when retryCondition returns false', async () => {
+    const error = {
+      config: { retryOnError: true, retryCount: 1 },
+      code: 'EPIPE',
+      message: 'write EPIPE',
+    };
+    const retryCondition = jest.fn().mockReturnValue(false);
+    const config = { retryLimit: 3, retryCondition };
+    const client = axios.create();
+
+    try {
+      await retryResponseErrorHandler(error, config, client);
+      fail('Expected retryResponseErrorHandler to throw the network error');
+    } catch (err) {
+      expect(err).toEqual(error);
+    }
+    expect(retryCondition).toHaveBeenCalledWith(error);
+  });
+
+  it('should retry ECONNABORTED when retryCondition returns true instead of throwing timeout error', async () => {
+    const error = {
+      config: { retryOnError: true, retryCount: 1, method: 'get', url: '/timeout-retry' },
+      code: 'ECONNABORTED',
+      message: 'timeout of 1000ms exceeded',
+    };
+    const retryCondition = jest.fn().mockReturnValue(true);
+    const config = { retryLimit: 3, timeout: 1000, retryCondition, retryDelay: 100 };
+    const client = axios.create();
+
+    mock.onGet('/timeout-retry').reply(200, { success: true });
+
+    jest.useFakeTimers();
+
+    const responsePromise = retryResponseErrorHandler(error, config, client);
+    jest.advanceTimersByTime(100);
+
+    const response = (await responsePromise) as AxiosResponse;
+    expect(response.status).toBe(200);
+    expect(retryCondition).toHaveBeenCalledWith(error);
+
+    jest.useRealTimers();
+  });
+
+  it('should use customBackoff for network-level retries when configured', async () => {
+    const error = {
+      config: { retryOnError: true, retryCount: 1, method: 'get', url: '/custom-backoff' },
+      code: 'ETIMEDOUT',
+      message: 'connect ETIMEDOUT',
+    };
+    const customBackoff = jest.fn().mockReturnValue(900);
+    const retryCondition = jest.fn().mockReturnValue(true);
+    const config = {
+      retryLimit: 3,
+      retryCondition,
+      retryDelay: 100,
+      retryDelayOptions: { base: 300, customBackoff },
+    };
+    const client = axios.create();
+
+    mock.onGet('/custom-backoff').reply(200, { success: true });
+
+    jest.useFakeTimers();
+
+    const responsePromise = retryResponseErrorHandler(error, config, client);
+    jest.advanceTimersByTime(899);
+    await Promise.resolve();
+
+    let settled = false;
+    responsePromise.then(() => {
+      settled = true;
+    });
+    expect(settled).toBe(false);
+
+    jest.advanceTimersByTime(1);
+    const response = (await responsePromise) as AxiosResponse;
+    expect(response.status).toBe(200);
+    expect(customBackoff).toHaveBeenCalled();
+
+    jest.useRealTimers();
+  });
+
   it('should resolve the promise to 408 error if retryOnError is true and error code is ECONNABORTED', async () => {
     const error = { config: { retryOnError: true, retryCount: 1 }, code: 'ECONNABORTED' };
     const config = { retryLimit: 5, timeout: 1000 };
@@ -1082,6 +1211,28 @@ describe('retryResponseErrorHandler', () => {
         content: ['Content cannot be empty'],
       });
     }
+  });
+});
+
+describe('getRetryDelay', () => {
+  it('should return customBackoff value when retryDelayOptions.customBackoff is set', () => {
+    const customBackoff = jest.fn().mockReturnValue(1200);
+    const config = {
+      retryDelay: 300,
+      retryDelayOptions: { base: 300, customBackoff },
+    };
+
+    expect(getRetryDelay(config)).toBe(1200);
+    expect(customBackoff).toHaveBeenCalled();
+  });
+
+  it('should return configured retryDelay when customBackoff is not set', () => {
+    expect(getRetryDelay({ retryDelay: 500 })).toBe(500);
+  });
+
+  it('should return default delay when retryDelay is unset or zero', () => {
+    expect(getRetryDelay({})).toBe(300);
+    expect(getRetryDelay({ retryDelay: 0 })).toBe(300);
   });
 });
 
