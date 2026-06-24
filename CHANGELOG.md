@@ -1,5 +1,9 @@
 ## Change log
 
+### Version: 1.4.1
+#### Date: June-29-2026
+- Fix: upgrade dependencies
+
 ### Version: 1.4.0
 #### Date: May-25-2026
  - Fix: Evaluate `retryCondition` for transient network-level errors (e.g. `ETIMEDOUT`, `ECONNRESET`, `EPIPE`) that have no HTTP response, so configured retry policies apply without external axios interceptors
