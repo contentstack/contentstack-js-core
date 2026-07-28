@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-throw-literal */
 import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosInstance } from 'axios';
 import { ERROR_MESSAGES } from '../error-messages';
 
