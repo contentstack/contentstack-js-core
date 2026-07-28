@@ -59,12 +59,9 @@ export const retryResponseErrorHandler = (error: any, config: any, axiosInstance
       }
 
       if (error.code === 'ECONNABORTED') {
-        const customError = {
-          error_message: ERROR_MESSAGES.RETRY.TIMEOUT_EXCEEDED(config.timeout),
-          error_code: ERROR_MESSAGES.ERROR_CODES.TIMEOUT,
-          errors: null,
-        };
-        throw customError; // Throw customError object
+        const timeoutError = new Error(ERROR_MESSAGES.RETRY.TIMEOUT_EXCEEDED(config.timeout));
+        (timeoutError as any).code = ERROR_MESSAGES.ERROR_CODES.TIMEOUT;
+        throw timeoutError;
       }
 
       throw error;
