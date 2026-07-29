@@ -4,6 +4,8 @@ import axios, { AxiosRequestHeaders, getAdapter } from 'axios';
 import { AxiosInstance, HttpClientParams } from './types';
 import { ERROR_MESSAGES } from './error-messages';
 
+const isNodeEnvironment = typeof window === 'undefined';
+
 export function httpClient(options: HttpClientParams): AxiosInstance {
   const defaultConfig = {
     insecure: false,
@@ -11,8 +13,8 @@ export function httpClient(options: HttpClientParams): AxiosInstance {
     headers: {} as AxiosRequestHeaders,
     basePath: '',
     proxy: false as const,
-    httpAgent: false,
-    httpsAgent: false,
+    httpAgent: isNodeEnvironment ? new (require('http').Agent)({ keepAlive: true }) : false,
+    httpsAgent: isNodeEnvironment ? new (require('https').Agent)({ keepAlive: true }) : false,
     timeout: 30000,
     logHandler: (level: string, data?: any) => {
       if (level === 'error') {
