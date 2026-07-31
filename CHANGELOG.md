@@ -1,5 +1,11 @@
 ## Change log
 
+### Version: 1.5.0
+#### Date: July-31-2026
+ - Fix: Classify request timeouts (`ECONNABORTED`) distinctly instead of a generic `UNKNOWN_ERROR`, preserving the real error code and message
+ - Fix: Retry transient network-level errors (`ECONNABORTED`, `ETIMEDOUT`, `ECONNRESET`, `EPIPE`, `EAI_AGAIN`) by default when there is no HTTP response
+ - Enhancement: Default `httpAgent`/`httpsAgent` to `keepAlive: true` connection agents in Node environments, reducing connection-setup overhead under concurrent request load
+
 ### Version: 1.4.1
 #### Date: June-29-2026
 - Fix: upgrade dependencies
