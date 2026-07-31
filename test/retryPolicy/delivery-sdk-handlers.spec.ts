@@ -121,6 +121,52 @@ describe('retryResponseErrorHandler', () => {
     jest.useRealTimers();
   });
 
+  it.each(['ECONNABORTED', 'ETIMEDOUT', 'ECONNRESET', 'EPIPE', 'EAI_AGAIN'])(
+    'should retry transient network error %s by default when no custom retryCondition is configured',
+    async (code) => {
+      const error = {
+        config: { retryOnError: true, retryCount: 1, method: 'get', url: '/default-retry' },
+        code,
+        message: `simulated ${code}`,
+      };
+      // No retryCondition here - mirrors the raw StackConfig a real stack() caller passes.
+      const config = { retryLimit: 3, retryDelay: 50 };
+      const client = axios.create();
+
+      mock.onGet('/default-retry').reply(200, { success: true });
+
+      jest.useFakeTimers();
+
+      const responsePromise = retryResponseErrorHandler(error, config, client);
+      jest.advanceTimersByTime(50);
+
+      const response = (await responsePromise) as AxiosResponse;
+      expect(response.status).toBe(200);
+
+      jest.useRealTimers();
+    }
+  );
+
+  it.each(['ENOTFOUND', 'ECONNREFUSED'])(
+    'should not retry non-transient network error %s by default when no custom retryCondition is configured',
+    async (code) => {
+      const error = {
+        config: { retryOnError: true, retryCount: 1 },
+        code,
+        message: `simulated ${code}`,
+      };
+      const config = { retryLimit: 3 };
+      const client = axios.create();
+
+      try {
+        await retryResponseErrorHandler(error, config, client);
+        fail(`Expected retryResponseErrorHandler to throw for ${code}`);
+      } catch (err) {
+        expect(err).toEqual(error);
+      }
+    }
+  );
+
   it('should rethrow network errors when retryCondition returns false', async () => {
     const error = {
       config: { retryOnError: true, retryCount: 1 },
@@ -204,7 +250,9 @@ describe('retryResponseErrorHandler', () => {
 
   it('should throw a real Error with the timeout duration and a TIMEOUT code when ECONNABORTED occurs', async () => {
     const error = { config: { retryOnError: true, retryCount: 1 }, code: 'ECONNABORTED' };
-    const config = { retryLimit: 5, timeout: 1000 };
+    // retryCondition explicitly disabled here to isolate the non-retried ECONNABORTED throw path,
+    // since ECONNABORTED is retried by default now (see "should retry transient network error" tests).
+    const config = { retryLimit: 5, timeout: 1000, retryCondition: () => false };
     const client = axios.create();
     try {
       await retryResponseErrorHandler(error, config, client);
@@ -219,7 +267,9 @@ describe('retryResponseErrorHandler', () => {
   });
   it('should classify a request timeout distinctly instead of as an unknown error', async () => {
     const error = { config: { retryOnError: true, retryCount: 1 }, code: 'ECONNABORTED' };
-    const config = { retryLimit: 5, timeout: 1000 };
+    // retryCondition explicitly disabled to isolate the non-retried classification path -
+    // ECONNABORTED is retried by default now (see "should retry transient network error" tests).
+    const config = { retryLimit: 5, timeout: 1000, retryCondition: () => false };
     const client = axios.create();
 
     let thrown: any;

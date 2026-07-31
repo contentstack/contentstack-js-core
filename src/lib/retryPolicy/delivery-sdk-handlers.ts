@@ -8,10 +8,13 @@ declare module 'axios' {
   }
 }
 
+const TRANSIENT_NETWORK_ERROR_CODES = ['ECONNABORTED', 'ETIMEDOUT', 'ECONNRESET', 'EPIPE', 'EAI_AGAIN'];
+
 const defaultConfig = {
   maxRequests: 5,
   retryLimit: 5,
   retryDelay: 300,
+  retryCondition: (error: any) => !error.response && TRANSIENT_NETWORK_ERROR_CODES.includes(error.code),
 };
 
 const DEFAULT_RETRY_DELAY_MS = 300;
