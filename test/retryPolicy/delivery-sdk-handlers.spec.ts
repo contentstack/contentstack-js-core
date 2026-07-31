@@ -267,7 +267,9 @@ describe('retryResponseErrorHandler', () => {
   });
   it('should classify a request timeout distinctly instead of as an unknown error', async () => {
     const error = { config: { retryOnError: true, retryCount: 1 }, code: 'ECONNABORTED' };
-    const config = { retryLimit: 5, timeout: 1000 };
+    // retryCondition explicitly disabled to isolate the non-retried classification path -
+    // ECONNABORTED is retried by default now (see "should retry transient network error" tests).
+    const config = { retryLimit: 5, timeout: 1000, retryCondition: () => false };
     const client = axios.create();
 
     let thrown: any;
