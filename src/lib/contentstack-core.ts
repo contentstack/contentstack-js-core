@@ -6,13 +6,15 @@ import { ERROR_MESSAGES } from './error-messages';
 
 const isNodeEnvironment = typeof window === 'undefined';
 
-// Guarded require: keeps 'http'/'https' out of browser bundles, which have no browser field of their own to redirect this.
+// Guarded require: keeps 'http'/'https' out of browser bundles and ESM environments.
+// Uses string literals (not the variable) so webpack/Turbopack can statically analyze the require call.
 function createKeepAliveAgent(moduleName: 'http' | 'https') {
-  if (!isNodeEnvironment) {
+  if (!isNodeEnvironment || typeof require === 'undefined') {
     return false as const;
   }
 
-  return new (require(moduleName).Agent)({ keepAlive: true });
+  if (moduleName === 'http') return new (require('http').Agent)({ keepAlive: true });
+  return new (require('https').Agent)({ keepAlive: true });
 }
 
 export function httpClient(options: HttpClientParams): AxiosInstance {
