@@ -1,4 +1,6 @@
 fileignoreconfig:
 - filename: package-lock.json
   checksum: 1cba2ff4ea6e6f725f6d22bc8c2e04e46c30923986124ef7b4689c705a0397f1
+- filename: test/esm-compat.mjs
+  checksum: 6da8aca15e54c00fe69b0226153b5d641e6f79845cd63adf5d38059932c15ae8
 version: ""
