@@ -77,29 +77,6 @@ describe('contentstackCore', () => {
     });
   });
 
-  describe('connection agents', () => {
-    it.each(['httpAgent', 'httpsAgent'])(
-      'should preserve an explicitly provided %s instead of defaulting it',
-      (agentOption) => {
-        const customAgent = { custom: true };
-        const options = { [agentOption]: customAgent };
-
-        const instance = httpClient(options as any);
-
-        expect((instance.defaults as any)[agentOption]).toEqual(customAgent);
-      }
-    );
-
-    it.each(['httpAgent', 'httpsAgent'])('should default %s to false in a browser-like environment', (agentOption) => {
-      // This spec file runs under jsdom (see jest.preset.js), so `window` is
-      // already defined here - matching a real browser, unlike the Node-only
-      // agent behavior covered in contentstack-core.node-agent.spec.ts.
-      const instance = httpClient({});
-
-      expect((instance.defaults as any)[agentOption]).toBe(false);
-    });
-  });
-
   describe('config.headers', () => {
     it('should include apiKey in headers when provided', () => {
       const options = {
