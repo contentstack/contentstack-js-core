@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-throw-literal */
 import axios, { InternalAxiosRequestConfig, AxiosResponse, AxiosInstance } from 'axios';
 import { ERROR_MESSAGES } from '../error-messages';
 
@@ -9,10 +8,13 @@ declare module 'axios' {
   }
 }
 
+const TRANSIENT_NETWORK_ERROR_CODES = ['ECONNABORTED', 'ETIMEDOUT', 'ECONNRESET', 'EPIPE', 'EAI_AGAIN'];
+
 const defaultConfig = {
   maxRequests: 5,
   retryLimit: 5,
   retryDelay: 300,
+  retryCondition: (error: any) => !error.response && TRANSIENT_NETWORK_ERROR_CODES.includes(error.code),
 };
 
 const DEFAULT_RETRY_DELAY_MS = 300;
@@ -59,12 +61,9 @@ export const retryResponseErrorHandler = (error: any, config: any, axiosInstance
       }
 
       if (error.code === 'ECONNABORTED') {
-        const customError = {
-          error_message: ERROR_MESSAGES.RETRY.TIMEOUT_EXCEEDED(config.timeout),
-          error_code: ERROR_MESSAGES.ERROR_CODES.TIMEOUT,
-          errors: null,
-        };
-        throw customError; // Throw customError object
+        const timeoutError = new Error(ERROR_MESSAGES.RETRY.TIMEOUT_EXCEEDED(config.timeout));
+        (timeoutError as any).code = ERROR_MESSAGES.ERROR_CODES.TIMEOUT;
+        throw timeoutError;
       }
 
       throw error;

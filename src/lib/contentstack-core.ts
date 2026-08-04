@@ -4,6 +4,17 @@ import axios, { AxiosRequestHeaders, getAdapter } from 'axios';
 import { AxiosInstance, HttpClientParams } from './types';
 import { ERROR_MESSAGES } from './error-messages';
 
+const isNodeEnvironment = typeof window === 'undefined';
+
+// Guarded require: keeps 'http'/'https' out of browser bundles, which have no browser field of their own to redirect this.
+function createKeepAliveAgent(moduleName: 'http' | 'https') {
+  if (!isNodeEnvironment) {
+    return false as const;
+  }
+
+  return new (require(moduleName).Agent)({ keepAlive: true });
+}
+
 export function httpClient(options: HttpClientParams): AxiosInstance {
   const defaultConfig = {
     insecure: false,
@@ -11,8 +22,8 @@ export function httpClient(options: HttpClientParams): AxiosInstance {
     headers: {} as AxiosRequestHeaders,
     basePath: '',
     proxy: false as const,
-    httpAgent: false,
-    httpsAgent: false,
+    httpAgent: createKeepAliveAgent('http'),
+    httpsAgent: createKeepAliveAgent('https'),
     timeout: 30000,
     logHandler: (level: string, data?: any) => {
       if (level === 'error') {
