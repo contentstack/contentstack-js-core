@@ -6,13 +6,24 @@ import { ERROR_MESSAGES } from './error-messages';
 
 const isNodeEnvironment = typeof window === 'undefined';
 
-// Guarded require: keeps 'http'/'https' out of browser bundles, which have no browser field of their own to redirect this.
-function createKeepAliveAgent(moduleName: 'http' | 'https') {
-  if (!isNodeEnvironment) {
-    return false as const;
-  }
+// In Node we default to keep-alive agents so TCP connections are reused under concurrent load.
+// Guards: `isNodeEnvironment` skips browsers; `typeof require` skips native ESM (where `require` is undefined).
+// The requires use literal 'http'/'https' so bundlers (Turbopack/webpack) can statically analyze them, and the
+// package.json "browser" field maps those modules to `false` so browser bundles never try to resolve them.
+function isNodeRuntime(): boolean {
+  return isNodeEnvironment && typeof require !== 'undefined';
+}
 
-  return new (require(moduleName).Agent)({ keepAlive: true });
+function createHttpAgent() {
+  if (!isNodeRuntime()) return false as const;
+
+  return new (require('http').Agent)({ keepAlive: true });
+}
+
+function createHttpsAgent() {
+  if (!isNodeRuntime()) return false as const;
+
+  return new (require('https').Agent)({ keepAlive: true });
 }
 
 export function httpClient(options: HttpClientParams): AxiosInstance {
@@ -22,8 +33,8 @@ export function httpClient(options: HttpClientParams): AxiosInstance {
     headers: {} as AxiosRequestHeaders,
     basePath: '',
     proxy: false as const,
-    httpAgent: createKeepAliveAgent('http'),
-    httpsAgent: createKeepAliveAgent('https'),
+    httpAgent: createHttpAgent(),
+    httpsAgent: createHttpsAgent(),
     timeout: 30000,
     logHandler: (level: string, data?: any) => {
       if (level === 'error') {

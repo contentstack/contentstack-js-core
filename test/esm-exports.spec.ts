@@ -106,6 +106,30 @@ describe('ESM Exports Tests', () => {
     });
   });
 
+  describe('ESM Build - require() Safety (Turbopack/webpack compatibility)', () => {
+    const esmCorePath = path.join(distPath, 'esm', 'src', 'lib', 'contentstack-core.js');
+
+    it('should have ESM contentstack-core.js built', () => {
+      expect(fs.existsSync(esmCorePath)).toBe(true);
+    });
+
+    it('should not contain dynamic require(variable) expressions that webpack/Turbopack reject', () => {
+      const content = fs.readFileSync(esmCorePath, 'utf-8');
+      // Dynamic require(identifier) — bundlers cannot statically trace these and throw
+      // "Cannot find module as expression is too dynamic"
+      expect(content).not.toMatch(/require\([a-zA-Z_$]/);
+    });
+
+    it('should use only static string-literal require calls', () => {
+      const content = fs.readFileSync(esmCorePath, 'utf-8');
+      const requireCalls = [...content.matchAll(/require\(([^)]+)\)/g)].map((m) => m[1].trim());
+      for (const arg of requireCalls) {
+        // Every require() arg must be a quoted string literal
+        expect(arg).toMatch(/^['"`]/);
+      }
+    });
+  });
+
   describe('Source Code Imports', () => {
     it('should be able to import getData as named export from source', async () => {
       const { getData } = await import('../src');
