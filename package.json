@@ -4,6 +4,10 @@
   "type": "commonjs",
   "main": "./dist/cjs/src/index.js",
   "types": "./dist/cjs/src/index.d.ts",
+  "browser": {
+    "http": false,
+    "https": false
+  },
   "exports": {
     ".": {
       "import": {
