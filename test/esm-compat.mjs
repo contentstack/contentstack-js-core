@@ -29,7 +29,7 @@ try {
   process.exit(1);
 }
 
-// In native ESM, require is not defined, so createKeepAliveAgent must fall back to false
+// In native ESM, require is not defined, so createHttpAgent()/createHttpsAgent() must fall back to false
 assert(
   instance.defaults.httpAgent === false,
   `httpAgent should be false in native ESM (got ${instance.defaults.httpAgent})`
