@@ -1,9 +1,13 @@
 {
   "name": "@contentstack/core",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "type": "commonjs",
   "main": "./dist/cjs/src/index.js",
   "types": "./dist/cjs/src/index.d.ts",
+  "browser": {
+    "http": false,
+    "https": false
+  },
   "exports": {
     ".": {
       "import": {
