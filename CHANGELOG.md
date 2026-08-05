@@ -1,5 +1,11 @@
 ## Change log
 
+### Version: 1.5.1
+#### Date: August-05-2026
+ - Fix: Resolve `require()` incompatibility that broke bundled and native ESM builds. The keep-alive agent setup used a dynamic `require(moduleName)`, which bundlers (webpack/Turbopack, e.g. Next.js) cannot statically analyze — producing `MODULE_NOT_FOUND` / "expression is too dynamic" build failures. It now uses statically analyzable `require('http')`/`require('https')` calls.
+ - Fix: Guard keep-alive agent creation for native ESM environments (where `require` is undefined) to prevent a `ReferenceError`.
+ - Fix: Add a package `browser` field mapping `http`/`https` to `false`, and externalize them in the UMD build, so browser bundles resolve cleanly.
+
 ### Version: 1.5.0
 #### Date: August-03-2026
  - Fix: Classify request timeouts (`ECONNABORTED`) distinctly instead of a generic `UNKNOWN_ERROR`, preserving the real error code and message
