@@ -104,6 +104,7 @@ describe('contentstackCore', () => {
     it('should include apiKey in headers when provided', () => {
       const options = {
         apiKey: 'my-api-key',
+        // deepcode ignore HardcodedNonCryptoSecret: test fixture value, not a real secret
         accessToken: 'my-access-token',
         insecure: true,
         defaultHostname: 'example.com',
@@ -117,6 +118,7 @@ describe('contentstackCore', () => {
       expect(instance.defaults.headers).toEqual(
         expect.objectContaining({
           api_key: 'my-api-key',
+          // deepcode ignore HardcodedNonCryptoSecret: test fixture value, not a real secret
           access_token: 'my-access-token',
         })
       );
@@ -125,6 +127,7 @@ describe('contentstackCore', () => {
     it('should include accessToken in headers when provided', () => {
       const options = {
         apiKey: 'my-api-key',
+        // deepcode ignore HardcodedNonCryptoSecret: test fixture value, not a real secret
         accessToken: 'my-access-token',
         insecure: false,
         defaultHostname: 'example.com',
@@ -138,6 +141,7 @@ describe('contentstackCore', () => {
       expect(instance.defaults.headers).toEqual(
         expect.objectContaining({
           api_key: 'my-api-key',
+          // deepcode ignore HardcodedNonCryptoSecret: test fixture value, not a real secret
           access_token: 'my-access-token',
         })
       );

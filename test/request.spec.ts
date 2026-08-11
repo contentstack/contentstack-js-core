@@ -181,6 +181,7 @@ describe('Request tests', () => {
 
     client.stackConfig = {
       // live_preview not defined
+      // deepcode ignore HardcodedNonCryptoSecret: test fixture value, not a real secret
       apiKey: 'test-key',
     };
 
