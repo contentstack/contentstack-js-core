@@ -8,6 +8,7 @@ const mockErrorResponse = {
     data: {
       name: "John Doe",
       email: "johndoe@example.com",
+      // deepcode ignore NoHardcodedPasswords: test fixture value, not a real secret
       password: "password123",
     },
     headers: {
@@ -36,6 +37,7 @@ const mockErrorResponseWithoutErrorData = {
     data: {
       name: "John Doe",
       email: "johndoe@example.com",
+      // deepcode ignore NoHardcodedPasswords: test fixture value, not a real secret
       password: "password123",
     },
     headers: {
@@ -70,6 +72,7 @@ const mockErrorResponseNoData = {
     data: {
       name: "John Doe",
       email: "johndoe@example.com",
+      // deepcode ignore NoHardcodedPasswords: test fixture value, not a real secret
       password: "password123",
     },
     headers: {
