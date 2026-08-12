@@ -1,5 +1,9 @@
 ## Change log
 
+### Version: 1.5.2
+#### Date: August-12-2026
+ - Fix: Bump axios to ^1.19.0, qs to 6.15.3, and @types/lodash to ^4.17.25
+
 ### Version: 1.5.1
 #### Date: August-05-2026
  - Fix: Resolve `require()` incompatibility that broke bundled and native ESM builds. The keep-alive agent setup used a dynamic `require(moduleName)`, which bundlers (webpack/Turbopack, e.g. Next.js) cannot statically analyze — producing `MODULE_NOT_FOUND` / "expression is too dynamic" build failures. It now uses statically analyzable `require('http')`/`require('https')` calls.
