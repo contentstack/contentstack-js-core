@@ -1,5 +1,10 @@
 ## Change log
 
+### Version: 1.5.3
+#### Date: September-24-2026
+ - Fix: Bump qs to 6.16.0 and axios to ^1.20.0 to resolve Snyk-reported vulnerabilities
+ - Chore: Update build and test tooling (webpack, ts-loader, jest-environment-jsdom, commitizen)
+
 ### Version: 1.5.2
 #### Date: August-12-2026
  - Fix: Bump axios to ^1.19.0, qs to 6.15.3, and @types/lodash to ^4.17.25
