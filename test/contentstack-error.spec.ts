@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { error } from '../src/lib/contentstack-error';
+import { TEST_PASSWORD } from './utils/test-secrets';
 import { mockErrorResponse, mockErrorResponseNoData, mockErrorResponseNoConfigNoResponse, mockErrorResponseWithoutErrorData } from './utils/mocks';
 
 describe('Contentstack Error', () => {
@@ -26,8 +27,7 @@ describe('Contentstack Error', () => {
         data: {
           name: 'John Doe',
           email: 'johndoe@example.com',
-          // deepcode ignore NoHardcodedPasswords: test fixture value, not a real secret
-          password: 'password123',
+          password: TEST_PASSWORD,
         },
         headers: {
           authtoken: '...token',
@@ -93,8 +93,7 @@ describe('Contentstack Error', () => {
         data: {
           name: "John Doe",
           email: "johndoe@example.com",
-          // deepcode ignore NoHardcodedPasswords: test fixture value, not a real secret
-          password: "password123",
+          password: TEST_PASSWORD,
         },
         headers: {
           authtoken: "...token",
