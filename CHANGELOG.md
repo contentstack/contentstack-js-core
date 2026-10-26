@@ -1,5 +1,9 @@
 ## Change log
 
+### Version: 1.5.4
+#### Date: October-26-2026
+ - Fix: Bump qs to 6.16.1 and update follow-redirects to 1.16.2 (via axios) to resolve Snyk-reported vulnerabilities
+
 ### Version: 1.5.3
 #### Date: September-24-2026
  - Fix: Bump qs to 6.16.0 and axios to ^1.20.0 to resolve Snyk-reported vulnerabilities

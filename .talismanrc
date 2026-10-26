@@ -1,4 +1,12 @@
 fileignoreconfig:
 - filename: package-lock.json
-  checksum: 3656a81955301405bf367fcfe25fde8084ccaf56c260c7bc0c9fd20fa6e80c1e
+  checksum: 98925293af5423338be35aab611b443be113327006b816aedc7a28fa0fe283a1
+- filename: test/request.spec.ts
+  checksum: 64cac3bf1b76418bed42b769393c862fa34152d76ce022a210960691850ff16a
+- filename: test/utils/mocks.ts
+  checksum: db275eae5ff5fbdd2efc202c254f6f5094e3fca3639502a3ee4dff0819623627
+- filename: test/contentstack-error.spec.ts
+  checksum: 87f5f8e7856290098ee4085e8a5aa6ade3a933d89fb1030bf59ab8eac0e881d8
+- filename: test/utils/test-secrets.ts
+  checksum: 813223dfa867273f6f4b889530de5f6c608122d769d78d634c2ec9c060e11396
 version: ""
