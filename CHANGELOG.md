@@ -2,7 +2,7 @@
 
 ### Version: 1.5.4
 #### Date: October-26-2026
- - Fix: Bump qs to 6.16.1 and update follow-redirects to 1.16.2 (via axios) to resolve Snyk-reported vulnerabilities
+ - Fix: Bump qs to 6.17.1, axios to ^1.21.0, tslib to ^2.9.1 and update follow-redirects to 1.16.2 (via axios) to resolve Snyk-reported vulnerabilities
 
 ### Version: 1.5.3
 #### Date: September-24-2026
