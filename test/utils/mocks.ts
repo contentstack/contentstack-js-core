@@ -1,6 +1,7 @@
 /* eslint-disable @cspell/spellchecker */
 /* eslint-disable prettier/prettier */
 
+import { TEST_PASSWORD } from './test-secrets';
 const mockErrorResponse = {
   config: {
     url: "https://example.com/api/v1/users",
@@ -8,8 +9,7 @@ const mockErrorResponse = {
     data: {
       name: "John Doe",
       email: "johndoe@example.com",
-      // deepcode ignore NoHardcodedPasswords: test fixture value, not a real secret
-      password: "password123",
+      password: TEST_PASSWORD,
     },
     headers: {
       authtoken: "dummy-auth-token",
@@ -37,8 +37,7 @@ const mockErrorResponseWithoutErrorData = {
     data: {
       name: "John Doe",
       email: "johndoe@example.com",
-      // deepcode ignore NoHardcodedPasswords: test fixture value, not a real secret
-      password: "password123",
+      password: TEST_PASSWORD,
     },
     headers: {
       authtoken: "dummy-auth-token",
@@ -72,8 +71,7 @@ const mockErrorResponseNoData = {
     data: {
       name: "John Doe",
       email: "johndoe@example.com",
-      // deepcode ignore NoHardcodedPasswords: test fixture value, not a real secret
-      password: "password123",
+      password: TEST_PASSWORD,
     },
     headers: {
       authtoken: "dummy-auth-token",

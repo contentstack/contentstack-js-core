@@ -181,8 +181,7 @@ describe('Request tests', () => {
 
     client.stackConfig = {
       // live_preview not defined
-      // deepcode ignore HardcodedNonCryptoSecret: test fixture value, not a real secret
-      apiKey: 'test-key',
+      apiKey: 'YOUR_API_KEY',
     };
 
     mock.onGet(url).reply(200, mockResponse);
